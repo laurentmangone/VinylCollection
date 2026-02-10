@@ -46,6 +46,7 @@ class VinylAdapter(
                 if (vinyl.condition.isNotBlank()) {
                     if (isNotEmpty()) append(separator)
                     append(vinyl.condition)
+                    append(" Etat")
                 }
             }
 

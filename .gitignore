@@ -13,3 +13,7 @@ local.properties
 # IDE files
 .idea/
 *.iml
+
+# Keystore - Ne pas committer en production
+*.jks
+*.keystore
