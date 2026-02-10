@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
@@ -32,10 +33,19 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         val args = requireArguments()
         val id = args.getLong(ARG_ID)
 
+        val genreAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_list_item_1,
+            resources.getStringArray(R.array.genres)
+        )
+        binding.genreInput.setAdapter(genreAdapter)
+        binding.genreInput.keyListener = null
+        binding.genreInput.setOnClickListener { binding.genreInput.showDropDown() }
+
         binding.titleInput.setText(args.getString(ARG_TITLE, ""))
         binding.artistInput.setText(args.getString(ARG_ARTIST, ""))
         binding.yearInput.setText(args.getString(ARG_YEAR, ""))
-        binding.genreInput.setText(args.getString(ARG_GENRE, ""))
+        binding.genreInput.setText(args.getString(ARG_GENRE, ""), false)
         binding.labelInput.setText(args.getString(ARG_LABEL, ""))
         binding.ratingInput.setText(args.getString(ARG_RATING, ""))
         binding.conditionInput.setText(args.getString(ARG_CONDITION, ""))
@@ -141,4 +151,3 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         }
     }
 }
-

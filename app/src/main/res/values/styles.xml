@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Common input style for all text fields in the bottom sheet -->
+    <style name="VinylFieldInput" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+</resources>
+

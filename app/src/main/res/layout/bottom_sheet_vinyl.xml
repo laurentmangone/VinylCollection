@@ -32,6 +32,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/titleInput"
+                    style="@style/VinylFieldInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -45,6 +46,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/artistInput"
+                    style="@style/VinylFieldInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -58,6 +60,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/yearInput"
+                    style="@style/VinylFieldInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number" />
@@ -68,12 +71,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:hintEnabled="true"
+                app:endIconMode="dropdown_menu"
                 android:hint="@string/genre">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/genreInput"
+                    style="@style/VinylFieldInput"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:focusable="false"
+                    android:cursorVisible="false"
+                    android:longClickable="false" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -85,6 +94,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/labelInput"
+                    style="@style/VinylFieldInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -98,6 +108,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/ratingInput"
+                    style="@style/VinylFieldInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number" />
@@ -112,6 +123,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/conditionInput"
+                    style="@style/VinylFieldInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -125,6 +137,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/notesInput"
+                    style="@style/VinylFieldInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minLines="3"

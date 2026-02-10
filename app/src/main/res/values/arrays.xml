@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="genres">
+        <item>Pop</item>
+        <item>Rock</item>
+        <item>Hard rock</item>
+        <item>Metal</item>
+        <item>Punk</item>
+        <item>Jazz</item>
+        <item>Blues</item>
+        <item>Classical</item>
+        <item>Hip-hop</item>
+        <item>Rap</item>
+        <item>R&amp;B</item>
+        <item>Soul</item>
+        <item>Reggae</item>
+        <item>Country</item>
+        <item>Folk</item>
+        <item>Electronic</item>
+        <item>EDM</item>
+        <item>House</item>
+        <item>Techno</item>
+        <item>Trance</item>
+        <item>Drum and Bass</item>
+        <item>Dubstep</item>
+        <item>Trap</item>
+        <item>Ambient</item>
+        <item>Chillout</item>
+        <item>Lo-fi</item>
+        <item>Soundtrack</item>
+        <item>Latin</item>
+        <item>Reggaeton</item>
+        <item>K-pop</item>
+        <item>J-pop</item>
+        <item>World</item>
+        <item>Gospel</item>
+        <item>Funk</item>
+        <item>Disco</item>
+        <item>Indie</item>
+        <item>Alternative</item>
+    </string-array>
+</resources>
+
