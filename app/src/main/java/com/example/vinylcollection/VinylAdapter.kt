@@ -50,7 +50,10 @@ class VinylAdapter(
 
             // Format rating avec étoile
             if (vinyl.rating != null) {
-                binding.rating.text = binding.root.context.getString(R.string.rating_format_star, vinyl.rating)
+                binding.rating.text = binding.root.context.getString(
+                    R.string.rating_format_star_5,
+                    vinyl.rating
+                )
                 binding.rating.visibility = android.view.View.VISIBLE
             } else {
                 binding.rating.visibility = android.view.View.GONE
@@ -78,4 +81,3 @@ class VinylAdapter(
         }
     }
 }
-

@@ -42,12 +42,17 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         binding.genreInput.keyListener = null
         binding.genreInput.setOnClickListener { binding.genreInput.showDropDown() }
 
+        val ratingValue = args.getString(ARG_RATING, "")
+            .toIntOrNull()
+            ?.coerceIn(0, 5)
+            ?: 0
+
         binding.titleInput.setText(args.getString(ARG_TITLE, ""))
         binding.artistInput.setText(args.getString(ARG_ARTIST, ""))
         binding.yearInput.setText(args.getString(ARG_YEAR, ""))
         binding.genreInput.setText(args.getString(ARG_GENRE, ""), false)
         binding.labelInput.setText(args.getString(ARG_LABEL, ""))
-        binding.ratingInput.setText(args.getString(ARG_RATING, ""))
+        binding.ratingBar.rating = ratingValue.toFloat()
         binding.conditionInput.setText(args.getString(ARG_CONDITION, ""))
         binding.notesInput.setText(args.getString(ARG_NOTES, ""))
 
@@ -63,7 +68,7 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
             }
 
             val year = binding.yearInput.text?.toString()?.trim().orEmpty().toIntOrNull()
-            val rating = binding.ratingInput.text?.toString()?.trim().orEmpty().toIntOrNull()
+            val rating = binding.ratingBar.rating.toInt().takeIf { it > 0 }
 
             val vinyl = Vinyl(
                 id = id,
@@ -91,6 +96,7 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
                 .setTitle(R.string.confirm_delete)
                 .setMessage(requireContext().getString(R.string.confirm_delete_message, title))
                 .setPositiveButton(R.string.delete) { _, _ ->
+                    val ratingToDelete = binding.ratingBar.rating.toInt().takeIf { it > 0 }
                     val vinyl = Vinyl(
                         id = id,
                         title = binding.titleInput.text?.toString()?.trim().orEmpty(),
@@ -98,7 +104,7 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
                         year = binding.yearInput.text?.toString()?.trim().orEmpty().toIntOrNull(),
                         genre = binding.genreInput.text?.toString()?.trim().orEmpty(),
                         label = binding.labelInput.text?.toString()?.trim().orEmpty(),
-                        rating = binding.ratingInput.text?.toString()?.trim().orEmpty().toIntOrNull(),
+                        rating = ratingToDelete,
                         condition = binding.conditionInput.text?.toString()?.trim().orEmpty(),
                         notes = binding.notesInput.text?.toString()?.trim().orEmpty()
                     )
