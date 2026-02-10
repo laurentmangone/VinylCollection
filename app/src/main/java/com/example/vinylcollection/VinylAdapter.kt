@@ -2,6 +2,7 @@ package com.example.vinylcollection
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -65,6 +66,17 @@ class VinylAdapter(
                 binding.notesPreview.visibility = android.view.View.VISIBLE
             } else {
                 binding.notesPreview.visibility = android.view.View.GONE
+            }
+
+            // Charger l'image de couverture si disponible
+            val cover = vinyl.coverUri?.takeIf { it.isNotBlank() }
+            if (cover != null) {
+                binding.vinylIcon.setImageURI(cover.toUri())
+                if (binding.vinylIcon.drawable == null) {
+                    binding.vinylIcon.setImageResource(R.drawable.ic_vinyl)
+                }
+            } else {
+                binding.vinylIcon.setImageResource(R.drawable.ic_vinyl)
             }
 
             binding.root.setOnClickListener { onItemClick(vinyl) }

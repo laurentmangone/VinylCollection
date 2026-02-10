@@ -15,17 +15,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:baselineAligned="false"
         android:padding="16dp">
 
         <!-- Icône de vinyle à gauche -->
-        <ImageView
-            android:id="@+id/vinylIcon"
+        <FrameLayout
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_vinyl"
-            android:contentDescription="@string/vinyl_icon_description"
-            android:layout_marginEnd="16dp" />
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/vinylIcon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_vinyl"
+                android:contentDescription="@string/cover_photo" />
+
+
+        </FrameLayout>
 
         <!-- Contenu principal -->
         <LinearLayout
@@ -120,4 +129,3 @@
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
-

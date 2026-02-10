@@ -68,4 +68,9 @@
     <string name="rating_format_star_5">★ %1$d/5</string>
     <string name="metadata_separator"> • </string>
     <string name="vinyl_icon_description">Icône de vinyle</string>
+    <string name="cover_photo">Pochette du vinyle</string>
+    <string name="take_photo">Prendre une photo</string>
+    <string name="pick_photo">Choisir depuis la galerie</string>
+    <string name="view_photo">Voir la photo</string>
+    <string name="remove_photo">Supprimer la photo</string>
 </resources>
