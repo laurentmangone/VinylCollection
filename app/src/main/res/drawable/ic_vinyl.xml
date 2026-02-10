@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Vinyl record disk -->
+    <path
+        android:fillColor="#1a1a1a"
+        android:pathData="M 24,4 A 20,20 0 1,1 24,44 A 20,20 0 1,1 24,4 Z" />
+
+    <!-- Grooves -->
+    <path
+        android:strokeColor="#333333"
+        android:strokeWidth="0.4"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M 10,24 A 14,14 0 1,1 38,24 A 14,14 0 1,1 10,24 Z" />
+    <path
+        android:strokeColor="#333333"
+        android:strokeWidth="0.4"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M 12,24 A 12,12 0 1,1 36,24 A 12,12 0 1,1 12,24 Z" />
+
+    <!-- Center label -->
+    <path
+        android:fillColor="#D32F2F"
+        android:pathData="M 24,16 A 8,8 0 1,1 24,32 A 8,8 0 1,1 24,16 Z" />
+
+    <!-- Center highlight -->
+    <path
+        android:strokeColor="#FF5252"
+        android:strokeWidth="0.8"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M 24,17 A 7,7 0 1,1 24,31 A 7,7 0 1,1 24,17 Z" />
+
+    <!-- Center hole -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M 24,22 A 2,2 0 1,1 24,26 A 2,2 0 1,1 24,22 Z" />
+
+</vector>
+

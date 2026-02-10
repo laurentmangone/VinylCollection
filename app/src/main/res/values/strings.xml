@@ -64,4 +64,7 @@
     <string name="add_vinyl">Ajouter un vinyle</string>
     <string name="error_title_artist">Titre et artiste sont obligatoires.</string>
     <string name="rating_format">Note : %1$d/10</string>
+    <string name="rating_format_star">★ %1$d/10</string>
+    <string name="metadata_separator"> • </string>
+    <string name="vinyl_icon_description">Icône de vinyle</string>
 </resources>

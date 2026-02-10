@@ -27,29 +27,43 @@ class VinylAdapter(
         fun bind(vinyl: Vinyl) {
             binding.title.text = vinyl.title
             binding.artist.text = vinyl.artist
+
+            // Format metadata avec séparateurs
+            val separator = binding.root.context.getString(R.string.metadata_separator)
             binding.meta.text = buildString {
                 if (vinyl.year != null) {
                     append(vinyl.year)
-                    append(" • ")
                 }
                 if (vinyl.genre.isNotBlank()) {
+                    if (isNotEmpty()) append(separator)
                     append(vinyl.genre)
-                    append(" • ")
                 }
                 if (vinyl.label.isNotBlank()) {
+                    if (isNotEmpty()) append(separator)
                     append(vinyl.label)
-                    append(" • ")
                 }
                 if (vinyl.condition.isNotBlank()) {
+                    if (isNotEmpty()) append(separator)
                     append(vinyl.condition)
                 }
-            }.trim().trimEnd('•', ' ')
-            binding.rating.text = if (vinyl.rating != null) {
-                binding.root.context.getString(R.string.rating_format, vinyl.rating)
-            } else {
-                ""
             }
-            binding.notesPreview.text = vinyl.notes
+
+            // Format rating avec étoile
+            if (vinyl.rating != null) {
+                binding.rating.text = binding.root.context.getString(R.string.rating_format_star, vinyl.rating)
+                binding.rating.visibility = android.view.View.VISIBLE
+            } else {
+                binding.rating.visibility = android.view.View.GONE
+            }
+
+            // Notes preview
+            if (vinyl.notes.isNotBlank()) {
+                binding.notesPreview.text = vinyl.notes
+                binding.notesPreview.visibility = android.view.View.VISIBLE
+            } else {
+                binding.notesPreview.visibility = android.view.View.GONE
+            }
+
             binding.root.setOnClickListener { onItemClick(vinyl) }
         }
     }
