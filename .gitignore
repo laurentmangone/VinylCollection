@@ -1,0 +1,15 @@
+# Project exclude paths
+/.gradle/
+/build/
+
+# Android/Gradle generated files
+**/build/
+.externalNativeBuild/
+.cxx/
+
+# Local SDK config
+local.properties
+
+# IDE files
+.idea/
+*.iml
