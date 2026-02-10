@@ -42,6 +42,15 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         binding.genreInput.keyListener = null
         binding.genreInput.setOnClickListener { binding.genreInput.showDropDown() }
 
+        val conditionAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_list_item_1,
+            resources.getStringArray(R.array.conditions)
+        )
+        binding.conditionInput.setAdapter(conditionAdapter)
+        binding.conditionInput.keyListener = null
+        binding.conditionInput.setOnClickListener { binding.conditionInput.showDropDown() }
+
         val ratingValue = args.getString(ARG_RATING, "")
             .toIntOrNull()
             ?.coerceIn(0, 5)
@@ -53,7 +62,7 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         binding.genreInput.setText(args.getString(ARG_GENRE, ""), false)
         binding.labelInput.setText(args.getString(ARG_LABEL, ""))
         binding.ratingBar.rating = ratingValue.toFloat()
-        binding.conditionInput.setText(args.getString(ARG_CONDITION, ""))
+        binding.conditionInput.setText(args.getString(ARG_CONDITION, ""), false)
         binding.notesInput.setText(args.getString(ARG_NOTES, ""))
 
         binding.deleteButton.visibility = if (id == 0L) View.GONE else View.VISIBLE

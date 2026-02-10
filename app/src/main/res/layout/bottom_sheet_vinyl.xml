@@ -131,13 +131,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:hintEnabled="true"
-                android:hint="@string/condition">
+                android:hint="@string/condition"
+                app:endIconMode="dropdown_menu">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/conditionInput"
                     style="@style/VinylFieldInput"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:focusable="false"
+                    android:cursorVisible="false"
+                    android:longClickable="false" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
