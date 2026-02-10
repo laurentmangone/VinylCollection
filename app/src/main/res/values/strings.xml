@@ -58,6 +58,9 @@
     <string name="notes">Notes</string>
     <string name="save">Enregistrer</string>
     <string name="delete">Supprimer</string>
+    <string name="cancel">Annuler</string>
+    <string name="confirm_delete">Confirmer la suppression</string>
+    <string name="confirm_delete_message">Êtes-vous sûr de vouloir supprimer "%1$s" ?</string>
     <string name="add_vinyl">Ajouter un vinyle</string>
     <string name="error_title_artist">Titre et artiste sont obligatoires.</string>
     <string name="rating_format">Note : %1$d/10</string>

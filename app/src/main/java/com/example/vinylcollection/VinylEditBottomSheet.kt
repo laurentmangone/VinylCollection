@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import com.example.vinylcollection.databinding.BottomSheetVinylBinding
@@ -75,19 +76,27 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         }
 
         binding.deleteButton.setOnClickListener {
-            val vinyl = Vinyl(
-                id = id,
-                title = binding.titleInput.text?.toString()?.trim().orEmpty(),
-                artist = binding.artistInput.text?.toString()?.trim().orEmpty(),
-                year = binding.yearInput.text?.toString()?.trim().orEmpty().toIntOrNull(),
-                genre = binding.genreInput.text?.toString()?.trim().orEmpty(),
-                label = binding.labelInput.text?.toString()?.trim().orEmpty(),
-                rating = binding.ratingInput.text?.toString()?.trim().orEmpty().toIntOrNull(),
-                condition = binding.conditionInput.text?.toString()?.trim().orEmpty(),
-                notes = binding.notesInput.text?.toString()?.trim().orEmpty()
-            )
-            viewModel.delete(vinyl)
-            dismiss()
+            val title = binding.titleInput.text?.toString()?.trim().orEmpty()
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.confirm_delete)
+                .setMessage(requireContext().getString(R.string.confirm_delete_message, title))
+                .setPositiveButton(R.string.delete) { _, _ ->
+                    val vinyl = Vinyl(
+                        id = id,
+                        title = binding.titleInput.text?.toString()?.trim().orEmpty(),
+                        artist = binding.artistInput.text?.toString()?.trim().orEmpty(),
+                        year = binding.yearInput.text?.toString()?.trim().orEmpty().toIntOrNull(),
+                        genre = binding.genreInput.text?.toString()?.trim().orEmpty(),
+                        label = binding.labelInput.text?.toString()?.trim().orEmpty(),
+                        rating = binding.ratingInput.text?.toString()?.trim().orEmpty().toIntOrNull(),
+                        condition = binding.conditionInput.text?.toString()?.trim().orEmpty(),
+                        notes = binding.notesInput.text?.toString()?.trim().orEmpty()
+                    )
+                    viewModel.delete(vinyl)
+                    dismiss()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
         }
     }
 
