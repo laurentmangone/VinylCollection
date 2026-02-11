@@ -32,49 +32,62 @@
 
                 <ImageView
                     android:id="@+id/coverImageView"
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginEnd="16dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_vinyl"
                     android:contentDescription="@string/cover_photo" />
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:gravity="center">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/takePhotoButton"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/take_photo" />
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_margin="4dp"
+                        app:icon="@drawable/ic_camera"
+                        android:contentDescription="@string/take_photo"
+                        app:iconSize="24dp"
+                        app:iconPadding="0dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/pickPhotoButton"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/pick_photo" />
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_margin="4dp"
+                        app:icon="@drawable/ic_image"
+                        android:contentDescription="@string/pick_photo"
+                        app:iconSize="24dp"
+                        app:iconPadding="0dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/viewPhotoButton"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="@string/view_photo" />
+                        style="@style/Widget.Material3.Button.IconButton.Outlined"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_margin="4dp"
+                        app:icon="@drawable/ic_view"
+                        android:contentDescription="@string/view_photo"
+                        app:iconSize="24dp"
+                        app:iconPadding="0dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/removePhotoButton"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="@string/remove_photo" />
+                        style="@style/Widget.Material3.Button.IconButton.Outlined"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_margin="4dp"
+                        app:icon="@drawable/ic_remove"
+                        android:contentDescription="@string/remove_photo"
+                        app:iconSize="24dp"
+                        app:iconPadding="0dp" />
                 </LinearLayout>
             </LinearLayout>
 

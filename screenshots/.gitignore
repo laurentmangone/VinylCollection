@@ -1,0 +1,9 @@
+# Ignorer tous les fichiers PNG (screenshots volumineux)
+*.png
+*.jpg
+*.jpeg
+
+# Mais garder le dossier et sa documentation
+!.gitkeep
+!README.md
+
