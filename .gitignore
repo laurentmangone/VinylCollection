@@ -1,6 +1,7 @@
 # Project exclude paths
 /.gradle/
 /build/
+/app/release/
 
 # Android/Gradle generated files
 **/build/
