@@ -1,11 +1,14 @@
 package com.example.vinylcollection
 
 import android.Manifest
+import android.app.Activity
+import android.content.ClipData
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +26,6 @@ import androidx.fragment.app.activityViewModels
 import com.example.vinylcollection.databinding.BottomSheetVinylBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.io.File
-import java.io.FileOutputStream
 
 class VinylEditBottomSheet : BottomSheetDialogFragment() {
 
@@ -49,14 +51,18 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    private var pendingCameraFile: File? = null
+    private var lastCameraFileSize: Long = -1L
+
     private val takePictureLauncher = registerForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            pendingCameraUri?.let { uri ->
-                coverUri = cropAndSaveCover(uri)
+            val file = pendingCameraFile
+            val uri = pendingCameraUri
+            if (file != null && uri != null) {
+                openCropperWhenCameraReady(file, uri)
             }
-            updateCoverUi()
         }
     }
 
@@ -64,7 +70,20 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
-            coverUri = cropAndSaveCover(uri)
+            // Copier l'image localement pour éviter les problèmes de permission
+            val localUri = copyToLocalFile(uri)
+            if (localUri != null) {
+                openCropper(localUri)
+            }
+        }
+    }
+
+    private val cropCoverLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uriString = result.data?.getStringExtra(CropCoverActivity.EXTRA_OUTPUT_URI)
+            coverUri = uriString?.toUri()
             updateCoverUi()
         }
     }
@@ -235,48 +254,101 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-    private fun cropAndSaveCover(sourceUri: Uri): Uri? {
-        val inputStream = requireContext().contentResolver.openInputStream(sourceUri) ?: return null
-        val original = inputStream.use { BitmapFactory.decodeStream(it) } ?: return null
 
-        val size = minOf(original.width, original.height)
-        val x = (original.width - size) / 2
-        val y = (original.height - size) / 2
-        val cropped = Bitmap.createBitmap(original, x, y, size, size)
-
-        val coversDir = File(requireContext().filesDir, "covers")
-        if (!coversDir.exists()) {
-            coversDir.mkdirs()
+    private fun copyToLocalFile(sourceUri: Uri): Uri? {
+        return try {
+            val coversDir = File(requireContext().filesDir, "covers")
+            if (!coversDir.exists()) {
+                coversDir.mkdirs()
+            }
+            val file = File(coversDir, "temp_${System.currentTimeMillis()}.jpg")
+            requireContext().contentResolver.openInputStream(sourceUri)?.use { input ->
+                file.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            if (!file.exists() || file.length() == 0L) {
+                return null
+            }
+            FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                file
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
-        val file = File(coversDir, "cover_${System.currentTimeMillis()}.jpg")
-        FileOutputStream(file).use { out ->
-            cropped.compress(Bitmap.CompressFormat.JPEG, 90, out)
-        }
-        return FileProvider.getUriForFile(
-            requireContext(),
-            "${requireContext().packageName}.fileprovider",
-            file
-        )
-    }
-
-    private fun createCoverUri(): Uri {
-        val coversDir = File(requireContext().filesDir, "covers")
-        if (!coversDir.exists()) {
-            coversDir.mkdirs()
-        }
-        val file = File(coversDir, "cover_${System.currentTimeMillis()}.jpg")
-        return FileProvider.getUriForFile(
-            requireContext(),
-            "${requireContext().packageName}.fileprovider",
-            file
-        )
     }
 
     private fun launchCamera() {
-        pendingCameraUri = createCoverUri()
+        val coversDir = File(requireContext().filesDir, "covers")
+        if (!coversDir.exists()) {
+            coversDir.mkdirs()
+        }
+        val file = File(coversDir, "camera_${System.currentTimeMillis()}.jpg")
+        pendingCameraFile = file
+        pendingCameraUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            file
+        )
         pendingCameraUri?.let { uri ->
             takePictureLauncher.launch(uri)
         }
+    }
+
+    private fun openCropperWhenReady(file: File, uri: Uri, remainingAttempts: Int = 6) {
+        if (file.exists() && file.length() > 0) {
+            openCropper(uri)
+            return
+        }
+        if (remainingAttempts <= 0) {
+            Toast.makeText(requireContext(), R.string.error_load_image, Toast.LENGTH_SHORT).show()
+            return
+        }
+        Handler(Looper.getMainLooper()).postDelayed(
+            { openCropperWhenReady(file, uri, remainingAttempts - 1) },
+            150
+        )
+    }
+
+    private fun openCropperWhenCameraReady(file: File, uri: Uri, remainingAttempts: Int = 10) {
+        if (!file.exists()) {
+            scheduleCameraRetry(file, uri, remainingAttempts)
+            return
+        }
+        val size = file.length()
+        if (size > 0 && size == lastCameraFileSize) {
+            val localUri = copyToLocalFile(uri)
+            if (localUri != null) {
+                openCropper(localUri)
+            } else {
+                Toast.makeText(requireContext(), R.string.error_load_image, Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
+        lastCameraFileSize = size
+        scheduleCameraRetry(file, uri, remainingAttempts)
+    }
+
+    private fun scheduleCameraRetry(file: File, uri: Uri, remainingAttempts: Int) {
+        if (remainingAttempts <= 0) {
+            Toast.makeText(requireContext(), R.string.error_load_image, Toast.LENGTH_SHORT).show()
+            return
+        }
+        Handler(Looper.getMainLooper()).postDelayed(
+            { openCropperWhenCameraReady(file, uri, remainingAttempts - 1) },
+            250
+        )
+    }
+
+    private fun openCropper(uri: Uri) {
+        val intent = Intent(requireContext(), CropCoverActivity::class.java)
+            .putExtra(CropCoverActivity.EXTRA_INPUT_URI, uri.toString())
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        intent.clipData = ClipData.newUri(requireContext().contentResolver, "cover", uri)
+        cropCoverLauncher.launch(intent)
     }
 
     companion object {

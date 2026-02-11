@@ -16,6 +16,7 @@ Les screenshots de l'application seront ajoutés ici.
 - [ ] 10_vinyl_card_detail.png - Carte vinyle détaillée dans la liste
 - [ ] 11_delete_confirmation.png - Dialog de confirmation de suppression
 - [ ] 12_cover_preview.png - Prévisualisation de la pochette
+- [ ] 13_cover_crop.png - Écran de recadrage manuel de la pochette
 
 ## Instructions
 

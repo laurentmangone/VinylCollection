@@ -28,6 +28,31 @@
 - ✅ Meilleure hiérarchie visuelle
 - ✅ Icônes universellement comprises (pas besoin de texte)
 
+#### Recadrage manuel des pochettes 🆕
+- **Nouvelle fonctionnalité** : Écran de recadrage interactif après prise/sélection de photo
+
+**Fichiers créés** :
+- 📷 `CropCoverActivity.kt` - Activité de recadrage plein écran
+- 🖼️ `CropImageView.kt` - ImageView avec support des gestures tactiles
+- 🔲 `CropOverlayView.kt` - Overlay avec cadre carré et zone assombrie
+- 📐 `activity_crop_cover.xml` - Layout de l'écran de recadrage
+
+**Fonctionnalités** :
+- **Glisser** : Déplacer l'image dans le cadre
+- **Pincer** : Zoomer/dézoomer (1x à 4x)
+- **Contraintes** : L'image ne peut pas sortir du cadre carré
+- **Cadre carré** : Format optimisé pour les pochettes de vinyles
+- **Scrim** : Zone assombrie autour du cadre pour visualiser le recadrage
+- **Sauvegarde** : JPEG qualité 90% dans le dossier interne
+
+**Flux utilisateur** :
+1. Clic sur 📷 (caméra) ou 🖼️ (galerie)
+2. Prise de photo ou sélection d'image
+3. **Écran de recadrage** s'ouvre automatiquement
+4. Glisser et zoomer pour cadrer parfaitement
+5. Clic sur "Enregistrer" → Image recadrée sauvegardée
+6. Retour au formulaire avec la nouvelle pochette
+
 ---
 
 ### 📚 2. Documentation complète créée

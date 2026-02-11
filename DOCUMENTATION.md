@@ -151,6 +151,10 @@ VinylCollection/
 ├── app/
 │   └── src/main/
 │       ├── java/                   # Code source
+│       │   ├── CropCoverActivity.kt    # ✨ Recadrage manuel
+│       │   ├── CropImageView.kt        # ✨ ImageView tactile
+│       │   ├── CropOverlayView.kt      # ✨ Overlay de recadrage
+│       │   └── ...
 │       └── res/
 │           ├── drawable/
 │           │   ├── ic_camera.xml   # ✨ Nouvelle icône
@@ -158,7 +162,8 @@ VinylCollection/
 │           │   ├── ic_view.xml     # ✨ Nouvelle icône
 │           │   └── ...
 │           └── layout/
-│               └── bottom_sheet_vinyl.xml  # ✨ UI améliorée
+│               ├── bottom_sheet_vinyl.xml  # ✨ UI améliorée
+│               └── activity_crop_cover.xml # ✨ Écran de recadrage
 │
 └── ...
 ```
@@ -178,6 +183,15 @@ VinylCollection/
    - Organisation horizontale compacte
    - Différenciation visuelle (Filled.Tonal vs Outlined)
    - Image de couverture agrandie (72dp → 96dp)
+
+3. ✅ **Recadrage manuel des pochettes** :
+   - `CropCoverActivity.kt` - Activité de recadrage plein écran
+   - `CropImageView.kt` - ImageView avec gestures tactiles
+   - `CropOverlayView.kt` - Overlay avec cadre carré et scrim
+   - `activity_crop_cover.xml` - Layout de l'écran de recadrage
+   - Gestures : glisser pour déplacer, pincer pour zoomer
+   - Contraintes : l'image reste toujours dans le cadre
+   - Sauvegarde en JPEG qualité 90%
 
 ### 📚 Documentation complète
 1. ✅ **README.md restructuré** avec :

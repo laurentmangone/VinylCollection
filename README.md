@@ -104,6 +104,14 @@
       <sub>Vue plein écran de la pochette</sub>
     </td>
   </tr>
+  <tr>
+    <td align="center">
+      <!--noinspection HtmlUnknownTarget -->
+      <img src="screenshots/13_cover_crop.png" alt="Recadrage" width="250"/><br/>
+      <sub><b>Recadrage manuel</b></sub><br/>
+      <sub>Glisser et zoomer pour cadrer</sub>
+    </td>
+  </tr>
 </table>
 
 > **📌 Note sur les screenshots** :
@@ -111,7 +119,7 @@
 > - **Pour prendre des screenshots** : Consultez le guide [`SCREENSHOTS_GUIDE.md`](SCREENSHOTS_GUIDE.md)
 > - **Scripts automatiques disponibles** :
 >   - `./take-screenshot.sh <nom>` - Prendre un screenshot individuel via ADB
->   - `./capture-all-screenshots.sh` - Guide interactif pour capturer les 12 screenshots
+>   - `./capture-all-screenshots.sh` - Guide interactif pour capturer les 13 screenshots
 > - **Pour héberger les images sur GitHub** : Voir [`HOSTING_SCREENSHOTS.md`](HOSTING_SCREENSHOTS.md)
 > - **Statut actuel** : Consultez [`screenshots/PLACEHOLDER.md`](screenshots/PLACEHOLDER.md)
 
@@ -133,7 +141,8 @@
 ### 📸 Gestion des pochettes
 - **Photo depuis caméra** : Prendre une photo directement
 - **Choix depuis galerie** : Sélectionner une image existante
-- **Recadrage automatique** : Format carré pour les pochettes
+- **Recadrage manuel** : Glisser et zoomer pour cadrer parfaitement la pochette
+- **Cadre carré** : Format optimisé pour les pochettes de vinyles
 - **Prévisualisation** : Vue plein écran de la pochette
 - **Icônes compactes** : Interface épurée sans texte
 
@@ -225,6 +234,9 @@ app/src/main/
 │   ├── VinylListFragment.kt        # Fragment liste
 │   ├── VinylEditBottomSheet.kt     # Bottom sheet édition
 │   ├── CoverPreviewDialogFragment.kt # Preview pochette
+│   ├── CropCoverActivity.kt        # Activité de recadrage manuel
+│   ├── CropImageView.kt            # ImageView tactile pour recadrage
+│   ├── CropOverlayView.kt          # Overlay cadre de recadrage
 │   └── MainActivity.kt             # Activité principale
 ├── res/
 │   ├── layout/                     # Layouts XML

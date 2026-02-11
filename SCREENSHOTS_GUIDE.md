@@ -95,6 +95,7 @@ chmod +x take-screenshot.sh
 - [ ] `10_vinyl_card_detail.png` - Zoom sur une belle carte vinyle dans la liste
 - [ ] `11_delete_confirmation.png` - Dialog de confirmation de suppression
 - [ ] `12_cover_preview.png` - Dialog de prévisualisation plein écran d'une pochette
+- [ ] `13_cover_crop.png` - Écran de recadrage manuel avec image positionnée
 
 ---
 

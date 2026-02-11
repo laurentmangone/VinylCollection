@@ -73,4 +73,6 @@
     <string name="pick_photo">Choisir depuis la galerie</string>
     <string name="view_photo">Voir la photo</string>
     <string name="remove_photo">Supprimer la photo</string>
+    <string name="crop_cover_title">Recadrer la pochette</string>
+    <string name="error_load_image">Impossible de charger l\'image.</string>
 </resources>
