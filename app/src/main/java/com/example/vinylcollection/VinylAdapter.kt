@@ -29,29 +29,20 @@ class VinylAdapter(
             binding.title.text = vinyl.title
             binding.artist.text = vinyl.artist
 
-            // Format metadata avec séparateurs
+            // Format metadata avec année et genre uniquement
             val separator = binding.root.context.getString(R.string.metadata_separator)
             binding.meta.text = buildString {
-                if (vinyl.year != null) {
+                if (vinyl.year != null && vinyl.year > 0) {
                     append(vinyl.year)
                 }
                 if (vinyl.genre.isNotBlank()) {
                     if (isNotEmpty()) append(separator)
                     append(vinyl.genre)
                 }
-                if (vinyl.label.isNotBlank()) {
-                    if (isNotEmpty()) append(separator)
-                    append(vinyl.label)
-                }
-                if (vinyl.condition.isNotBlank()) {
-                    if (isNotEmpty()) append(separator)
-                    append(vinyl.condition)
-                    append(" Etat")
-                }
             }
 
             // Format rating avec étoile
-            if (vinyl.rating != null) {
+            if (vinyl.rating != null && vinyl.rating > 0) {
                 binding.rating.text = binding.root.context.getString(
                     R.string.rating_format_star_5,
                     vinyl.rating
@@ -59,6 +50,22 @@ class VinylAdapter(
                 binding.rating.visibility = android.view.View.VISIBLE
             } else {
                 binding.rating.visibility = android.view.View.GONE
+            }
+
+            // Badge Label
+            if (vinyl.label.isNotBlank()) {
+                binding.label.text = vinyl.label
+                binding.labelBadge.visibility = android.view.View.VISIBLE
+            } else {
+                binding.labelBadge.visibility = android.view.View.GONE
+            }
+
+            // Badge Condition
+            if (vinyl.condition.isNotBlank()) {
+                binding.condition.text = vinyl.condition
+                binding.conditionBadge.visibility = android.view.View.VISIBLE
+            } else {
+                binding.conditionBadge.visibility = android.view.View.GONE
             }
 
             // Notes preview

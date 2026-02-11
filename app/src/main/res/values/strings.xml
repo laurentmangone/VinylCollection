@@ -75,4 +75,6 @@
     <string name="remove_photo">Supprimer la photo</string>
     <string name="crop_cover_title">Recadrer la pochette</string>
     <string name="error_load_image">Impossible de charger l\'image.</string>
+    <string name="icon_label">🏷️</string>
+    <string name="icon_condition">📀</string>
 </resources>
