@@ -1,9 +1,14 @@
-# Ignorer tous les fichiers PNG (screenshots volumineux)
+# Ignorer tous les fichiers PNG et JPG par défaut
 *.png
 *.jpg
 *.jpeg
 
-# Mais garder le dossier et sa documentation
+# MAIS autoriser les fichiers PNG, JPG et JPEG dans ce répertoire (screenshots)
+!*.png
+!*.jpg
+!*.jpeg
+
+# Garder le dossier et sa documentation
 !.gitkeep
 !README.md
 

@@ -18,3 +18,9 @@ local.properties
 # Keystore - Ne pas committer en production
 *.jks
 *.keystore
+
+# Screenshots - Autoriser les PNG dans le répertoire screenshots/
+!screenshots/*.png
+!screenshots/*.jpg
+!screenshots/*.jpeg
+
