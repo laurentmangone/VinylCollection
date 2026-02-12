@@ -60,30 +60,6 @@
   </tr>
 </table>
 
-### Fonctionnalités avancées
-<table>
-  <tr>
-    <td align="center">
-      <!--noinspection HtmlUnknownTarget -->
-      <img src="screenshots/07_vinyl_edit_rating.png" alt="Notation" width="250"/><br/>
-      <sub><b>Notation par étoiles</b></sub><br/>
-      <sub>Système visuel sur 5 étoiles</sub>
-    </td>
-    <td align="center">
-      <!--noinspection HtmlUnknownTarget -->
-      <img src="screenshots/08_vinyl_edit_genre.png" alt="Genre" width="250"/><br/>
-      <sub><b>Sélection du genre</b></sub><br/>
-      <sub>Liste déroulante de 35+ genres</sub>
-    </td>
-    <td align="center">
-      <!--noinspection HtmlUnknownTarget -->
-      <img src="screenshots/09_vinyl_edit_condition.png" alt="État" width="250"/><br/>
-      <sub><b>État du vinyle</b></sub><br/>
-      <sub>Bon / Moyen / Mauvais</sub>
-    </td>
-  </tr>
-</table>
-
 ### Détails et interactions
 <table>
   <tr>
