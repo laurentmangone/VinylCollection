@@ -51,12 +51,6 @@
       <sub><b>Champs de saisie</b></sub><br/>
       <sub>Titre, artiste, année, label...</sub>
     </td>
-    <td align="center">
-      <!--noinspection HtmlUnknownTarget -->
-      <img src="screenshots/06_vinyl_edit_cover.png" alt="Gestion pochette" width="250"/><br/>
-      <sub><b>Gestion de la pochette</b></sub><br/>
-      <sub>Icônes compactes (caméra/galerie)</sub>
-    </td>
   </tr>
 </table>
 
