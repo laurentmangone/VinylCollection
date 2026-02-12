@@ -14,7 +14,7 @@ interface VinylDao {
     @Query(
         """
         SELECT * FROM vinyls
-        WHERE title LIKE '%' || :query || '%' OR artist LIKE '%' || :query || '%'
+        WHERE title LIKE '%' || :query || '%' OR artist LIKE '%' || :query || '%' OR genre LIKE '%' || :query || '%'
         ORDER BY artist COLLATE NOCASE, title COLLATE NOCASE
         """
     )

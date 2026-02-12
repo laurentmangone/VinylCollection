@@ -45,7 +45,7 @@
     </string>
     <string name="vinyl_list_title">Vinyles</string>
     <string name="search">Rechercher</string>
-    <string name="search_hint">Titre ou artiste</string>
+    <string name="search_hint">Titre, artiste ou genre</string>
     <string name="empty_state">Aucun vinyle pour le moment. Utilise + pour en ajouter.</string>
     <string name="vinyl_details">Details du vinyle</string>
     <string name="title">Titre</string>
