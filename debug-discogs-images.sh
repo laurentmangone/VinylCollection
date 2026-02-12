@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Script pour déboguer les images Discogs
+# Affiche les logs liés au chargement des images
+
+echo "=== Débogage des images Discogs ==="
+echo ""
+echo "📋 Instructions :"
+echo "1. Dans Android Studio, ouvrez Logcat (View > Tool Windows > Logcat)"
+echo "2. Filtrez avec : 'DiscogsAdapter OR Discogs OR Coil'"
+echo "3. Lancez une recherche Discogs dans l'app"
+echo "4. Vérifiez les logs suivants :"
+echo ""
+echo "✅ Logs attendus si tout fonctionne :"
+echo "   - D/Discogs: Recherche trouvée: X résultats"
+echo "   - D/Discogs: [0] Titre de l'album"
+echo "   - D/Discogs:   - cover_image: https://i.discogs.com/..."
+echo "   - D/DiscogsAdapter: Chargement image pour 'Titre': https://..."
+echo "   - D/DiscogsAdapter: ✅ Image chargée avec succès"
+echo ""
+echo "❌ Logs d'erreur possibles :"
+echo "   - E/DiscogsAdapter: ❌ Erreur chargement image"
+echo "   - E/DiscogsAdapter: Erreur: [message d'erreur]"
+echo "   - D/DiscogsAdapter: ⚠️ Pas d'URL d'image disponible"
+echo ""
+echo "🔍 Que vérifier :"
+echo "   1. Les URLs d'images sont-elles valides (https://i.discogs.com/...) ?"
+echo "   2. Y a-t-il des erreurs réseau (INTERNET permission, SSL, timeout) ?"
+echo "   3. Les images se chargent-elles avec succès ?"
+echo ""
+echo "📱 Si les images ne s'affichent toujours pas :"
+echo "   - Vérifiez que l'émulateur a bien accès à Internet"
+echo "   - Testez sur un appareil physique"
+echo "   - Vérifiez que l'APK a bien été réinstallé après les modifications"
+echo ""
+

@@ -79,4 +79,11 @@
     <string name="icon_condition">📀</string>
     <string name="zoom_in">Zoomer</string>
     <string name="zoom_out">Dézoomer</string>
+    <string name="cover_image">Image de couverture</string>
+    <string name="no_results">Aucun résultat</string>
+    <string name="discogs_results_for">Résultats pour "%1$s"</string>
+    <string name="discogs_no_results_for">Aucun résultat trouvé pour "%1$s"</string>
+    <string name="discogs_search_error">Erreur : %1$s</string>
+    <string name="discogs_search_error_toast">Erreur de recherche : %1$s</string>
+    <string name="discogs_search">🔍 Chercher sur Discogs</string>
 </resources>

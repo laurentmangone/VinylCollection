@@ -23,8 +23,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.vinylcollection.databinding.BottomSheetVinylBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.launch
 import java.io.File
 
 class VinylEditBottomSheet : BottomSheetDialogFragment() {
@@ -33,6 +35,7 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
     private val binding get() = _binding!!
 
     private val viewModel: VinylViewModel by activityViewModels()
+    private val discogsManager by lazy { DiscogsManager() }
 
     private var coverUri: Uri? = null
     private var pendingCameraUri: Uri? = null
@@ -156,6 +159,11 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         binding.conditionInput.setAdapter(conditionAdapter)
         binding.conditionInput.keyListener = null
         binding.conditionInput.setOnClickListener { binding.conditionInput.showDropDown() }
+
+        // Listener pour la recherche Discogs
+        binding.discogsSearchButton.setOnClickListener {
+            searchOnDiscogs()
+        }
 
         val ratingValue = args.getString(ARG_RATING, "")
             .toIntOrNull()
@@ -349,6 +357,116 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         intent.clipData = ClipData.newUri(requireContext().contentResolver, "cover", uri)
         cropCoverLauncher.launch(intent)
+    }
+
+    /**
+     * Déclenche la recherche sur Discogs
+     */
+    private fun searchOnDiscogs() {
+        val artist = binding.artistInput.text.toString().trim()
+        val title = binding.titleInput.text.toString().trim()
+
+        if (title.isBlank()) {
+            Toast.makeText(
+                requireContext(),
+                "Entrez un titre pour chercher",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val query = if (artist.isBlank()) {
+            title
+        } else {
+            "$artist $title"
+        }
+
+        DiscogsSearchBottomSheet.newInstance(query).apply {
+            setOnReleaseSelected { release ->
+                fillFromDiscogsRelease(release)
+            }
+        }.show(parentFragmentManager, "DiscogsSearch")
+    }
+
+    /**
+     * Remplit les champs avec les données Discogs
+     */
+    private fun fillFromDiscogsRelease(release: DiscogsManager.DiscogsRelease) {
+        val rawTitle = release.title?.trim().orEmpty()
+
+        // Parser le titre Discogs qui est souvent au format "Artiste - Titre" ou "Artiste – Titre"
+        // Gère aussi les cas avec parenthèses (ex: "Artist - Title (Remastered)")
+        val titleParts = rawTitle.split(Regex(" [-–] "), limit = 2)
+        if (titleParts.size == 2) {
+            val parsedArtist = titleParts[0].trim()
+            val parsedTitle = titleParts[1].trim()
+                .replace(Regex("\\s*\\([^)]*\\)\\s*$"), "") // Retire les parenthèses finales
+                .replace(Regex("\\s*,\\s*[^,]*$"), "") // Retire les virgules finales avec suffixes
+                .trim()
+
+            if (parsedArtist.isNotBlank()) {
+                binding.artistInput.setText(parsedArtist)
+            }
+            binding.titleInput.setText(parsedTitle.ifBlank { rawTitle })
+        } else {
+            // Si pas de séparateur trouvé, on met tout dans le titre
+            binding.titleInput.setText(rawTitle)
+        }
+
+        release.year?.let { binding.yearInput.setText(it.toString()) }
+
+        val label = release.label?.firstOrNull() ?: ""
+        binding.labelInput.setText(label)
+
+        val mainGenre = release.genre?.firstOrNull() ?: ""
+        binding.genreInput.setText(mainGenre, false)
+
+        // Télécharger l'image de couverture si disponible
+        val coverImageUrl = release.getCoverUrl()
+
+        if (!coverImageUrl.isNullOrBlank()) {
+            lifecycleScope.launch {
+                try {
+                    android.util.Log.d("VinylEdit", "Téléchargement cover depuis: $coverImageUrl")
+                    val imageFile = discogsManager.downloadCoverImage(
+                        coverImageUrl,
+                        requireContext()
+                    )
+                    if (imageFile != null) {
+                        coverUri = FileProvider.getUriForFile(
+                            requireContext(),
+                            "${requireContext().packageName}.fileprovider",
+                            imageFile
+                        )
+                        updateCoverUi()
+                        Toast.makeText(
+                            requireContext(),
+                            "Données Discogs chargées avec l'image !",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Données Discogs chargées (échec téléchargement image)",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("VinylEdit", "Erreur téléchargement: ${e.message}", e)
+                    Toast.makeText(
+                        requireContext(),
+                        "Données Discogs chargées (erreur image: ${e.message})",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } else {
+            Toast.makeText(
+                requireContext(),
+                "Données Discogs chargées ! (pas d'image disponible)",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     companion object {
