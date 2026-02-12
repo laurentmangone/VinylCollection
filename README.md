@@ -123,6 +123,20 @@
 - **Notes personnelles** : Champ libre pour commentaires
 - **Métadonnées complètes** : Titre, artiste, année, label
 
+### 🌐 Intégration Discogs
+- **Recherche Discogs** : Chercher automatiquement dans la base de données mondiale
+- **Auto-complétion** : Remplissage automatique des données depuis Discogs
+- **Pochettes HQ** : Téléchargement des images de couverture haute résolution
+- **Affichage des covers** : Visualisation des pochettes dans les résultats de recherche
+- **Chargement optimisé** : Images chargées avec Coil, cache automatique et logs détaillés
+- **User-Agent optimisé** : Configuration OkHttp pour une compatibilité maximale
+- **Données certifiées** : Informations community-curated et vérifiées
+- **24+ millions de releases** : Couverture mondiale de tous les genres
+- 📖 [Lire la documentation Discogs](DISCOGS_INTEGRATION.md)
+- 🖼️ [Guide des covers Discogs](DISCOGS_COVERS_GUIDE.md)
+- 🔧 [Correction images Discogs](DISCOGS_COVERS_FIX.md)
+- 🛠️ [Fix des images (12/02/2026)](DISCOGS_IMAGES_FIX.md)
+
 ### 💾 Stockage local
 - **Room Database** : Base de données locale robuste
 - **Pas de connexion requise** : Fonctionne 100% hors ligne
