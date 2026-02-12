@@ -6,6 +6,8 @@
 
 **Application Android** pour gérer une collection personnelle de vinyles en local avec une interface moderne Material Design 3.
 
+> 📸 **Note** : Les captures d'écran ci-dessous sont stockées dans le répertoire `screenshots/` et sont incluses dans le repository Git.
+
 ---
 
 ## 📸 Captures d'écran
@@ -23,7 +25,7 @@
       <!--noinspection HtmlUnknownTarget -->
       <img src="screenshots/02_vinyl_list_search.png" alt="Recherche" width="250"/><br/>
       <sub><b>Recherche en temps réel</b></sub><br/>
-      <sub>Filtrage par titre ou artiste</sub>
+      <sub>Filtrage par titre, artiste ou genre</sub>
     </td>
     <td align="center">
       <!--noinspection HtmlUnknownTarget -->
@@ -114,14 +116,12 @@
   </tr>
 </table>
 
-> **📌 Note sur les screenshots** :
-> - Les screenshots ne sont **pas inclus dans le repo Git** pour éviter d'alourdir le dépôt
-> - **Pour prendre des screenshots** : Consultez le guide [`SCREENSHOTS_GUIDE.md`](SCREENSHOTS_GUIDE.md)
-> - **Scripts automatiques disponibles** :
->   - `./take-screenshot.sh <nom>` - Prendre un screenshot individuel via ADB
->   - `./capture-all-screenshots.sh` - Guide interactif pour capturer les 13 screenshots
-> - **Pour héberger les images sur GitHub** : Voir [`HOSTING_SCREENSHOTS.md`](HOSTING_SCREENSHOTS.md)
-> - **Statut actuel** : Consultez [`screenshots/PLACEHOLDER.md`](screenshots/PLACEHOLDER.md)
+> 📸 **Screenshots** :
+> - Les fichiers PNG du répertoire `screenshots/` sont **inclus dans le repo Git** ✅
+> - Configuration `.gitignore` autorise les images du répertoire `screenshots/`
+> - Pour ajouter/mettre à jour des screenshots : Consultez [`screenshots/README.md`](screenshots/README.md)
+> - **Pour prendre des screenshots** : Utilisez Android Studio Device Manager ou `adb shell screencap`
+> - **Pour héberger les images sur GitHub Issues** : Voir [`HOSTING_SCREENSHOTS.md`](HOSTING_SCREENSHOTS.md)
 
 ---
 
@@ -129,7 +129,7 @@
 
 ### 📋 Gestion complète
 - **CRUD complet** : Créer, lire, modifier et supprimer des vinyles
-- **Recherche en temps réel** : Filtrage instantané par titre ou artiste
+- **Recherche en temps réel** : Filtrage instantané par titre, artiste ou genre
 - **État vide élégant** : Message d'accueil quand la collection est vide
 
 ### 🎨 Interface moderne

@@ -31,3 +31,10 @@ Ce dossier contient les captures d'écran de l'application Vinyl Collection.
    - Copier les fichiers PNG dans ce dossier `screenshots/`
    - Le README principal les référencera automatiquement
 
+5. **Pousser dans le repository Git**
+   - ✅ Les fichiers PNG de ce répertoire sont **autorisés à être commités** dans Git
+   - Configuration : `.gitignore` est configuré pour accepter les `.png`, `.jpg` et `.jpeg` du répertoire `screenshots/`
+   - Utiliser : `git add screenshots/*.png` pour ajouter tous les screenshots
+   - Puis : `git commit -m "Add/update application screenshots"` et `git push`
+
+
