@@ -77,4 +77,6 @@
     <string name="error_load_image">Impossible de charger l\'image.</string>
     <string name="icon_label">🏷️</string>
     <string name="icon_condition">📀</string>
+    <string name="zoom_in">Zoomer</string>
+    <string name="zoom_out">Dézoomer</string>
 </resources>

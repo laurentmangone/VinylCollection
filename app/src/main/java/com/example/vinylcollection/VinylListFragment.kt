@@ -7,7 +7,10 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -36,6 +39,16 @@ class VinylListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Gérer les insets système pour le RecyclerView
+        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Ajouter 80dp (pour le FAB) + les insets système
+            val fabPadding = (80 * resources.displayMetrics.density).toInt()
+            v.updatePadding(bottom = insets.bottom + fabPadding)
+            windowInsets
+        }
+
         adapter = VinylAdapter { vinyl ->
             VinylEditBottomSheet.newEdit(vinyl).show(parentFragmentManager, TAG_EDIT)
         }

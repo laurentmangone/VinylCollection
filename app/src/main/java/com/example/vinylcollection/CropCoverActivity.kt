@@ -17,7 +17,11 @@ import android.view.ScaleGestureDetector
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
+import androidx.core.view.updatePadding
 import com.google.android.material.button.MaterialButton
 import java.io.File
 import java.io.FileInputStream
@@ -29,11 +33,14 @@ class CropCoverActivity : AppCompatActivity() {
     private lateinit var overlay: CropOverlayView
     private lateinit var cancelButton: MaterialButton
     private lateinit var saveButton: MaterialButton
+    private lateinit var zoomInButton: com.google.android.material.floatingactionbutton.FloatingActionButton
+    private lateinit var zoomOutButton: com.google.android.material.floatingactionbutton.FloatingActionButton
 
     private lateinit var bitmap: Bitmap
     private val imageMatrix = Matrix()
     private var minScale = 1f
     private var maxScale = 4f
+    private val zoomStep = 0.2f
 
     private var lastX = 0f
     private var lastY = 0f
@@ -61,12 +68,35 @@ class CropCoverActivity : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Activer edge-to-edge
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContentView(R.layout.activity_crop_cover)
 
         imageView = findViewById<CropImageView>(R.id.cropImageView)
         overlay = findViewById(R.id.cropOverlay)
         cancelButton = findViewById(R.id.cropCancelButton)
         saveButton = findViewById(R.id.cropSaveButton)
+        zoomInButton = findViewById(R.id.zoomInButton)
+        zoomOutButton = findViewById(R.id.zoomOutButton)
+
+        // Gérer les insets pour le titre
+        val cropTitle = findViewById<android.widget.TextView>(R.id.cropTitle)
+        ViewCompat.setOnApplyWindowInsetsListener(cropTitle) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(top = insets.top + 16)
+            windowInsets
+        }
+
+        // Gérer les insets pour les boutons en bas
+        val cropActions = findViewById<android.widget.LinearLayout>(R.id.cropActions)
+        ViewCompat.setOnApplyWindowInsetsListener(cropActions) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val paddingPx = (16 * resources.displayMetrics.density).toInt()
+            v.updatePadding(bottom = insets.bottom + paddingPx)
+            windowInsets
+        }
 
         val inputUri = intent.getStringExtra(EXTRA_INPUT_URI)?.let(Uri::parse)
         Log.d("CropCover", "Input URI: $inputUri")
@@ -126,6 +156,31 @@ class CropCoverActivity : AppCompatActivity() {
             )
             finish()
         }
+
+        zoomInButton.setOnClickListener {
+            zoomBy(1f + zoomStep)
+        }
+
+        zoomOutButton.setOnClickListener {
+            zoomBy(1f - zoomStep)
+        }
+    }
+
+    private fun zoomBy(scaleFactor: Float) {
+        if (!::bitmap.isInitialized) return
+
+        val currentScale = getMatrixScale()
+        val targetScale = (currentScale * scaleFactor).coerceIn(minScale, maxScale)
+        val factor = targetScale / currentScale
+
+        // Zoomer au centre du cadre de recadrage
+        val cropRect = overlay.getCropRect()
+        val centerX = cropRect.centerX()
+        val centerY = cropRect.centerY()
+
+        imageMatrix.postScale(factor, factor, centerX, centerY)
+        constrainMatrix()
+        imageView.imageMatrix = imageMatrix
     }
 
     private fun tryLoadBitmap() {
