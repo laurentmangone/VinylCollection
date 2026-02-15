@@ -6,4 +6,9 @@
         android:icon="@android:drawable/ic_menu_search"
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
+    <item
+        android:id="@+id/action_backup"
+        android:title="@string/backup_title"
+        android:icon="@android:drawable/ic_menu_save"
+        app:showAsAction="ifRoom" />
 </menu>

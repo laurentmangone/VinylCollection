@@ -69,6 +69,12 @@ dependencies {
     // Image loading
     implementation(libs.coil)
 
+
+    // JSON serialization
+    implementation(libs.moshiKotlin)
+    implementation(libs.moshiAdapters)
+    ksp(libs.moshiKotlinCodegen)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

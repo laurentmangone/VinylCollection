@@ -86,4 +86,16 @@
     <string name="discogs_search_error">Erreur : %1$s</string>
     <string name="discogs_search_error_toast">Erreur de recherche : %1$s</string>
     <string name="discogs_search">🔍 Chercher sur Discogs</string>
+    <!-- Backup & Export -->
+    <string name="backup_export">📥 Exporter en JSON</string>
+    <string name="backup_import">📤 Importer un JSON</string>
+    <string name="backup_google_drive">☁️ Google Drive</string>
+    <string name="backup_title">Sauvegardes et exports</string>
+    <string name="export_description">Télécharge toute ta collection en JSON (avec les covers encodées)</string>
+    <string name="import_description">Importe une collection depuis un fichier JSON</string>
+    <string name="google_drive_description">Sauvegarde automatique sur Google Drive</string>
+    <string name="export_success">Collection exportée</string>
+    <string name="import_success">%1$d vinyles importés</string>
+    <string name="google_drive_synced">Synchronisé</string>
+    <string name="google_drive_error">Erreur Google Drive</string>
 </resources>

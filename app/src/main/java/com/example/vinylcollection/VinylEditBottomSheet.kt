@@ -87,7 +87,13 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             val uriString = result.data?.getStringExtra(CropCoverActivity.EXTRA_OUTPUT_URI)
             coverUri = uriString?.toUri()
+            android.util.Log.d("VinylEdit", "Cover recadrée avec succès: $coverUri")
             updateCoverUi()
+            Toast.makeText(
+                requireContext(),
+                "✅ Cover ajoutée ! N'oubliez pas de sauvegarder",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -105,7 +111,12 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         val args = requireArguments()
         val id = args.getLong(ARG_ID)
 
+        android.util.Log.d("VinylEdit", "Loading vinyl with ID: $id")
+        android.util.Log.d("VinylEdit", "  - ARG_COVER_URI: ${args.getString(ARG_COVER_URI)}")
+
         coverUri = args.getString(ARG_COVER_URI)?.toUri()
+        android.util.Log.d("VinylEdit", "  - coverUri after loading: $coverUri")
+
         updateCoverUi()
 
         binding.takePhotoButton.setOnClickListener {
@@ -193,6 +204,10 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
             val year = binding.yearInput.text?.toString()?.trim().orEmpty().toIntOrNull()
             val rating = binding.ratingBar.rating.toInt().takeIf { it > 0 }
 
+            android.util.Log.d("VinylEdit", "Saving vinyl: $title")
+            android.util.Log.d("VinylEdit", "  - coverUri: $coverUri")
+            android.util.Log.d("VinylEdit", "  - coverUri.toString(): ${coverUri?.toString()}")
+
             val vinyl = Vinyl(
                 id = id,
                 title = title,
@@ -206,11 +221,21 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
                 coverUri = coverUri?.toString()
             )
 
+            android.util.Log.d("VinylEdit", "Vinyl saved: ${vinyl.title}, coverUri: ${vinyl.coverUri}")
+
             if (id == 0L) {
                 viewModel.add(vinyl)
             } else {
                 viewModel.update(vinyl)
             }
+
+            val message = if (coverUri != null) {
+                "✅ Vinyl sauvegardé avec cover !"
+            } else {
+                "✅ Vinyl sauvegardé (sans cover)"
+            }
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+
             dismiss()
         }
 

@@ -90,13 +90,24 @@ class VinylListFragment : Fragment() {
             }
 
             override fun onMenuItemSelected(menuItem: android.view.MenuItem): Boolean {
-                return false
+                return when (menuItem.itemId) {
+                    R.id.action_search -> true
+                    R.id.action_backup -> {
+                        openBackupSheet()
+                        true
+                    }
+                    else -> false
+                }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     fun openCreateSheet() {
         VinylEditBottomSheet.newCreate().show(parentFragmentManager, TAG_EDIT)
+    }
+
+    fun openBackupSheet() {
+        BackupBottomSheet.show(parentFragmentManager)
     }
 
     override fun onDestroyView() {
