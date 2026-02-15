@@ -98,4 +98,14 @@
     <string name="import_success">%1$d vinyles importés</string>
     <string name="google_drive_synced">Synchronisé</string>
     <string name="google_drive_error">Erreur Google Drive</string>
+    <string name="scan_cover">Scanner la pochette</string>
+    <string name="scan_cover_source">Choisir une source</string>
+    <string name="scan_cover_camera">Prendre une photo</string>
+    <string name="scan_cover_gallery">Choisir dans la galerie</string>
+    <string name="scan_cover_error">Impossible de lire le texte de la pochette.</string>
+    <string name="discogs_enter_title">Entrez un titre pour chercher</string>
+    <string name="scan_barcode">Scanner le code-barres</string>
+    <string name="scan_barcode_error">Aucun code-barres détecté.</string>
+    <string name="discogs_results_for_barcode">Résultats pour le code-barres "%1$s"</string>
+    <string name="discogs_no_results_for_barcode">Aucun résultat trouvé pour le code-barres "%1$s"</string>
 </resources>

@@ -39,12 +39,17 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val query = arguments?.getString(ARG_QUERY)
+        val isBarcode = arguments?.getBoolean(ARG_IS_BARCODE) ?: false
         if (query == null) {
             dismiss()
             return
         }
 
-        binding.searchTitle.text = getString(R.string.discogs_results_for, query)
+        binding.searchTitle.text = if (isBarcode) {
+            getString(R.string.discogs_results_for_barcode, query)
+        } else {
+            getString(R.string.discogs_results_for, query)
+        }
 
         // Rechercher immédiatement
         viewLifecycleOwner.lifecycleScope.launch {
@@ -53,17 +58,24 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
             binding.emptyState.isVisible = false
 
             try {
-                val results = discogsManager.searchRelease(query)
+                val results = if (isBarcode) {
+                    discogsManager.searchByBarcodeResults(query)
+                } else {
+                    discogsManager.searchRelease(query)
+                }
 
                 binding.progressBar.isVisible = false
 
                 if (results.isEmpty()) {
                     binding.emptyState.isVisible = true
-                    binding.emptyState.text = getString(R.string.discogs_no_results_for, query)
+                    binding.emptyState.text = if (isBarcode) {
+                        getString(R.string.discogs_no_results_for_barcode, query)
+                    } else {
+                        getString(R.string.discogs_no_results_for, query)
+                    }
                 } else {
                     binding.resultsRecycler.isVisible = true
 
-                    // Afficher les résultats
                     val adapter = DiscogsResultAdapter { release ->
                         onReleaseSelected?.invoke(release)
                         dismiss()
@@ -96,9 +108,17 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
 
     companion object {
         private const val ARG_QUERY = "arg_query"
+        private const val ARG_IS_BARCODE = "arg_is_barcode"
 
         fun newInstance(query: String) = DiscogsSearchBottomSheet().apply {
             arguments = bundleOf(ARG_QUERY to query)
+        }
+
+        fun newInstanceBarcode(barcode: String) = DiscogsSearchBottomSheet().apply {
+            arguments = bundleOf(
+                ARG_QUERY to barcode,
+                ARG_IS_BARCODE to true
+            )
         }
 
         @Suppress("unused")

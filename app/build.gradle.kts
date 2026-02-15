@@ -43,6 +43,11 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
 }
 
 dependencies {
@@ -69,6 +74,10 @@ dependencies {
     // Image loading
     implementation(libs.coil)
 
+
+    // ML Kit (OCR + barcode)
+    implementation(libs.mlkitTextRecognition)
+    implementation(libs.mlkitBarcodeScanning)
 
     // JSON serialization
     implementation(libs.moshiKotlin)

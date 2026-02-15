@@ -40,18 +40,30 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
     private var coverUri: Uri? = null
     private var pendingCameraUri: Uri? = null
 
+    private enum class ScanMode {
+        COVER_OCR,
+        BARCODE
+    }
+
+    private var pendingScanMode: ScanMode? = null
+    private var scanCameraFile: File? = null
+    private var scanCameraUri: Uri? = null
+
+    private var cameraRequestAction: (() -> Unit)? = null
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            launchCamera()
+            cameraRequestAction?.invoke()
         } else {
             Toast.makeText(
                 requireContext(),
-                "Permission caméra requise pour prendre une photo",
+                getString(R.string.scan_cover_error),
                 Toast.LENGTH_SHORT
             ).show()
         }
+        cameraRequestAction = null
     }
 
     private var pendingCameraFile: File? = null
@@ -69,6 +81,18 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    private val scanTakePictureLauncher = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            val uri = scanCameraUri
+            val mode = pendingScanMode
+            if (uri != null && mode != null) {
+                runScanOnImage(uri, mode)
+            }
+        }
+    }
+
     private val pickPhotoLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -77,6 +101,18 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
             val localUri = copyToLocalFile(uri)
             if (localUri != null) {
                 openCropper(localUri)
+            }
+        }
+    }
+
+    private val scanPickPhotoLauncher = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val localUri = copyToLocalFile(uri)
+            val mode = pendingScanMode
+            if (localUri != null && mode != null) {
+                runScanOnImage(localUri, mode)
             }
         }
     }
@@ -119,6 +155,19 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
 
         updateCoverUi()
 
+        if (args.getBoolean(ARG_START_BARCODE_SCAN, false)) {
+            view.post {
+                pendingScanMode = ScanMode.BARCODE
+                showScanSourceDialog()
+            }
+        }
+        if (args.getBoolean(ARG_START_COVER_SCAN, false)) {
+            view.post {
+                pendingScanMode = ScanMode.COVER_OCR
+                showScanSourceDialog()
+            }
+        }
+
         binding.takePhotoButton.setOnClickListener {
             when {
                 ContextCompat.checkSelfPermission(
@@ -128,6 +177,7 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
                     launchCamera()
                 }
                 else -> {
+                    cameraRequestAction = { launchCamera() }
                     requestPermissionLauncher.launch(Manifest.permission.CAMERA)
                 }
             }
@@ -331,19 +381,263 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-    private fun openCropperWhenReady(file: File, uri: Uri, remainingAttempts: Int = 6) {
-        if (file.exists() && file.length() > 0) {
-            openCropper(uri)
-            return
+    private fun launchScanCamera() {
+        val coversDir = File(requireContext().filesDir, "covers")
+        if (!coversDir.exists()) {
+            coversDir.mkdirs()
         }
-        if (remainingAttempts <= 0) {
-            Toast.makeText(requireContext(), R.string.error_load_image, Toast.LENGTH_SHORT).show()
-            return
-        }
-        Handler(Looper.getMainLooper()).postDelayed(
-            { openCropperWhenReady(file, uri, remainingAttempts - 1) },
-            150
+        val file = File(coversDir, "scan_${System.currentTimeMillis()}.jpg")
+        scanCameraFile = file
+        scanCameraUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            file
         )
+        scanCameraUri?.let { uri ->
+            scanTakePictureLauncher.launch(uri)
+        }
+    }
+
+    private fun showScanSourceDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.scan_cover_source)
+            .setItems(
+                arrayOf(
+                    getString(R.string.scan_cover_camera),
+                    getString(R.string.scan_cover_gallery)
+                )
+            ) { _, which ->
+                when (which) {
+                    0 -> {
+                        when {
+                            ContextCompat.checkSelfPermission(
+                                requireContext(),
+                                Manifest.permission.CAMERA
+                            ) == PackageManager.PERMISSION_GRANTED -> {
+                                launchScanCamera()
+                            }
+                            else -> {
+                                cameraRequestAction = { launchScanCamera() }
+                                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+                            }
+                        }
+                    }
+                    1 -> {
+                        scanPickPhotoLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun runScanOnImage(uri: Uri, mode: ScanMode) {
+        try {
+            val inputImage = com.google.mlkit.vision.common.InputImage.fromFilePath(
+                requireContext(),
+                uri
+            )
+
+            when (mode) {
+                ScanMode.BARCODE -> {
+                    val scanner = com.google.mlkit.vision.barcode.BarcodeScanning.getClient()
+                    scanner.process(inputImage)
+                        .addOnSuccessListener { barcodes ->
+                            val rawValue = barcodes.firstOrNull()?.rawValue?.trim()
+                            if (rawValue.isNullOrBlank()) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.scan_barcode_error,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                openDiscogsSearchFromBarcode(rawValue)
+                            }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.scan_barcode_error,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                }
+                ScanMode.COVER_OCR -> {
+                    val recognizer = com.google.mlkit.vision.text.TextRecognition
+                        .getClient(
+                            com.google.mlkit.vision.text.latin.TextRecognizerOptions.DEFAULT_OPTIONS
+                        )
+                    recognizer.process(inputImage)
+                        .addOnSuccessListener { visionText ->
+                            val parsed = parseOcrText(visionText.text)
+                            if (parsed == null) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.scan_cover_error,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                parsed.artist?.let { binding.artistInput.setText(it) }
+                                parsed.title?.let { binding.titleInput.setText(it) }
+                                val query = buildDiscogsQuery(parsed.title)
+                                if (query != null) {
+                                    openDiscogsSearch(query)
+                                } else {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        R.string.scan_cover_error,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.scan_cover_error,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                }
+            }
+        } catch (_: Exception) {
+            Toast.makeText(
+                requireContext(),
+                R.string.scan_cover_error,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun openDiscogsSearchFromBarcode(barcode: String) {
+        DiscogsSearchBottomSheet.newInstanceBarcode(barcode).apply {
+            setOnReleaseSelected { release ->
+                fillFromDiscogsRelease(release)
+            }
+        }.show(parentFragmentManager, "DiscogsSearch")
+    }
+
+    private data class OcrResult(
+        val artist: String?,
+        val title: String?
+    )
+
+    private fun parseOcrText(text: String): OcrResult? {
+        val normalizedLines = text.lines()
+            .map { normalizeOcrLine(it) }
+            .filter { it.isNotBlank() }
+            .filterNot { isNoiseLine(it) }
+            .distinct()
+            .take(8)
+
+        if (normalizedLines.isEmpty()) return null
+
+        val dashLine = normalizedLines.firstOrNull { it.contains(" - ") || it.contains(" – ") }
+        if (dashLine != null) {
+            val parts = dashLine.split(Regex(" [-–] "), limit = 2)
+            val artist = parts.getOrNull(0)?.trim().takeUnless { it.isNullOrBlank() }
+            val title = parts.getOrNull(1)?.trim().takeUnless { it.isNullOrBlank() }
+            return OcrResult(artist, title)
+        }
+
+        if (normalizedLines.size == 1) {
+            return OcrResult(artist = null, title = normalizedLines.first())
+        }
+
+        val candidates = normalizedLines.sortedByDescending { it.length }
+        val first = candidates.getOrNull(0)
+        val second = candidates.getOrNull(1)
+
+        if (first.isNullOrBlank() || second.isNullOrBlank()) {
+            return OcrResult(artist = null, title = first ?: normalizedLines.first())
+        }
+
+        val artist: String
+        val title: String
+        if (first.length >= second.length) {
+            title = first
+            artist = second
+        } else {
+            title = second
+            artist = first
+        }
+
+        return OcrResult(artist = artist, title = title)
+    }
+
+    private fun normalizeOcrLine(line: String): String {
+        return line
+            .trim()
+            .replace(Regex("""\u00A0"""), " ")
+            .replace(Regex("""\s+"""), " ")
+            .replace(Regex("""\s*\([^)]*\)\s*$"""), "")
+            .replace(Regex("""\s*,\s*[^,]*$"""), "")
+            .replace(Regex("""^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$"""), "")
+            .trim()
+    }
+
+    private fun isNoiseLine(line: String): Boolean {
+        val lower = line.lowercase()
+        val noiseTokens = listOf(
+            "stereo",
+            "mono",
+            "records",
+            "recordings",
+            "record",
+            "lp",
+            "vinyl",
+            "side",
+            "disc",
+            "volume",
+            "vol",
+            "edition",
+            "remastered",
+            "deluxe",
+            "limited",
+            "rpm",
+            "33",
+            "45"
+        )
+
+        if (lower.length < 3) return true
+        if (lower.count { it.isLetterOrDigit() } < 3) return true
+        if (noiseTokens.any { token -> lower == token || lower.contains("$token ") }) return true
+        if (lower.count { it.isDigit() } > lower.length / 2) return true
+
+        return false
+    }
+
+    private fun buildDiscogsQuery(title: String?): String? {
+        val safeTitle = title?.trim().orEmpty()
+        return safeTitle.takeIf { it.isNotBlank() }
+    }
+
+    private fun openDiscogsSearch(query: String) {
+        DiscogsSearchBottomSheet.newInstance(query).apply {
+            setOnReleaseSelected { release ->
+                fillFromDiscogsRelease(release)
+            }
+        }.show(parentFragmentManager, "DiscogsSearch")
+    }
+
+    /**
+     * Déclenche la recherche sur Discogs
+     */
+    private fun searchOnDiscogs() {
+        val title = binding.titleInput.text.toString().trim()
+
+        if (title.isBlank()) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.discogs_enter_title),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        openDiscogsSearch(title)
     }
 
     private fun openCropperWhenCameraReady(file: File, uri: Uri, remainingAttempts: Int = 10) {
@@ -384,49 +678,15 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         cropCoverLauncher.launch(intent)
     }
 
-    /**
-     * Déclenche la recherche sur Discogs
-     */
-    private fun searchOnDiscogs() {
-        val artist = binding.artistInput.text.toString().trim()
-        val title = binding.titleInput.text.toString().trim()
-
-        if (title.isBlank()) {
-            Toast.makeText(
-                requireContext(),
-                "Entrez un titre pour chercher",
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-
-        val query = if (artist.isBlank()) {
-            title
-        } else {
-            "$artist $title"
-        }
-
-        DiscogsSearchBottomSheet.newInstance(query).apply {
-            setOnReleaseSelected { release ->
-                fillFromDiscogsRelease(release)
-            }
-        }.show(parentFragmentManager, "DiscogsSearch")
-    }
-
-    /**
-     * Remplit les champs avec les données Discogs
-     */
     private fun fillFromDiscogsRelease(release: DiscogsManager.DiscogsRelease) {
         val rawTitle = release.title?.trim().orEmpty()
 
-        // Parser le titre Discogs qui est souvent au format "Artiste - Titre" ou "Artiste – Titre"
-        // Gère aussi les cas avec parenthèses (ex: "Artist - Title (Remastered)")
         val titleParts = rawTitle.split(Regex(" [-–] "), limit = 2)
         if (titleParts.size == 2) {
             val parsedArtist = titleParts[0].trim()
             val parsedTitle = titleParts[1].trim()
-                .replace(Regex("\\s*\\([^)]*\\)\\s*$"), "") // Retire les parenthèses finales
-                .replace(Regex("\\s*,\\s*[^,]*$"), "") // Retire les virgules finales avec suffixes
+                .replace(Regex("\\s*\\([^)]*\\)\\s*$"), "")
+                .replace(Regex("\\s*,\\s*[^,]*$"), "")
                 .trim()
 
             if (parsedArtist.isNotBlank()) {
@@ -434,7 +694,6 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
             }
             binding.titleInput.setText(parsedTitle.ifBlank { rawTitle })
         } else {
-            // Si pas de séparateur trouvé, on met tout dans le titre
             binding.titleInput.setText(rawTitle)
         }
 
@@ -446,7 +705,6 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         val mainGenre = release.genre?.firstOrNull() ?: ""
         binding.genreInput.setText(mainGenre, false)
 
-        // Télécharger l'image de couverture si disponible
         val coverImageUrl = release.getCoverUrl()
 
         if (!coverImageUrl.isNullOrBlank()) {
@@ -505,11 +763,31 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         private const val ARG_CONDITION = "arg_condition"
         private const val ARG_NOTES = "arg_notes"
         private const val ARG_COVER_URI = "arg_cover_uri"
+        private const val ARG_START_BARCODE_SCAN = "arg_start_barcode_scan"
+        private const val ARG_START_COVER_SCAN = "arg_start_cover_scan"
 
         fun newCreate(): VinylEditBottomSheet {
             return VinylEditBottomSheet().apply {
                 arguments = bundleOf(
                     ARG_ID to 0L
+                )
+            }
+        }
+
+        fun newCreateScanBarcode(): VinylEditBottomSheet {
+            return VinylEditBottomSheet().apply {
+                arguments = bundleOf(
+                    ARG_ID to 0L,
+                    ARG_START_BARCODE_SCAN to true
+                )
+            }
+        }
+
+        fun newCreateScanCover(): VinylEditBottomSheet {
+            return VinylEditBottomSheet().apply {
+                arguments = bundleOf(
+                    ARG_ID to 0L,
+                    ARG_START_COVER_SCAN to true
                 )
             }
         }

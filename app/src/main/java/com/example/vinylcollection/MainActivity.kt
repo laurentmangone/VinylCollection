@@ -31,6 +31,16 @@ class MainActivity : AppCompatActivity() {
             view.translationY = -insets.bottom.toFloat()
             windowInsets
         }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.fabScanBarcode) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.translationY = -insets.bottom.toFloat()
+            windowInsets
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.fabScanCover) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.translationY = -insets.bottom.toFloat()
+            windowInsets
+        }
 
         setSupportActionBar(binding.toolbar)
 
@@ -45,6 +55,26 @@ class MainActivity : AppCompatActivity() {
             val current = navHost?.childFragmentManager?.fragments?.firstOrNull()
             if (current is VinylListFragment) {
                 current.openCreateSheet()
+            }
+        }
+
+        binding.fabScanBarcode.setOnClickListener {
+            val navHost = supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment_content_main)
+                as? androidx.navigation.fragment.NavHostFragment
+            val current = navHost?.childFragmentManager?.fragments?.firstOrNull()
+            if (current is VinylListFragment) {
+                current.openCreateSheetScanBarcode()
+            }
+        }
+
+        binding.fabScanCover.setOnClickListener {
+            val navHost = supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment_content_main)
+                as? androidx.navigation.fragment.NavHostFragment
+            val current = navHost?.childFragmentManager?.fragments?.firstOrNull()
+            if (current is VinylListFragment) {
+                current.openCreateSheetScanCover()
             }
         }
     }

@@ -40,6 +40,9 @@
         <item>World</item>
     </string-array>
     <string-array name="conditions">
+        <item>Neuf</item>
+        <item>Comme neuf</item>
+        <item>Très bon</item>
         <item>Bon</item>
         <item>Moyen</item>
         <item>Mauvais</item>

@@ -19,6 +19,8 @@ gson = "2.13.2"
 okhttp = "5.3.2"
 coil = "2.7.0"
 moshi = "1.15.2"
+mlkitTextRecognition = "16.0.1"
+mlkitBarcodeScanning = "17.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,6 +47,8 @@ coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
 moshiKotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi" }
 moshiAdapters = { group = "com.squareup.moshi", name = "moshi-adapters", version.ref = "moshi" }
 moshiKotlinCodegen = { group = "com.squareup.moshi", name = "moshi-kotlin-codegen", version.ref = "moshi" }
+mlkitTextRecognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkitTextRecognition" }
+mlkitBarcodeScanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkitBarcodeScanning" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

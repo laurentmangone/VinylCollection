@@ -106,6 +106,14 @@ class VinylListFragment : Fragment() {
         VinylEditBottomSheet.newCreate().show(parentFragmentManager, TAG_EDIT)
     }
 
+    fun openCreateSheetScanBarcode() {
+        VinylEditBottomSheet.newCreateScanBarcode().show(parentFragmentManager, TAG_EDIT)
+    }
+
+    fun openCreateSheetScanCover() {
+        VinylEditBottomSheet.newCreateScanCover().show(parentFragmentManager, TAG_EDIT)
+    }
+
     fun openBackupSheet() {
         BackupBottomSheet.show(parentFragmentManager)
     }

@@ -171,6 +171,7 @@ class DiscogsManager {
         return@withContext try {
             val response = discogsApi.search(
                 q = query,
+                barcode = null,
                 type = type,
                 per_page = 10
             )
@@ -224,9 +225,49 @@ class DiscogsManager {
      * Rechercher par code-barre
      * Plus précis qu'une recherche textuelle
      */
+    suspend fun searchByBarcodeResults(barcode: String): List<DiscogsRelease> =
+        withContext(Dispatchers.IO) {
+            return@withContext try {
+                val response = discogsApi.search(
+                    q = null,
+                    barcode = barcode,
+                    type = "release",
+                    per_page = 10
+                )
+                Log.d("Discogs", "Recherche code-barres: ${response.results.size} résultats")
+
+                val enrichedResults = response.results.map { release ->
+                    if (release.cover_image.isNullOrBlank() && release.thumb.isNullOrBlank()) {
+                        try {
+                            val details = getReleaseDetail(release.id) ?: return@map release
+                            val imageUrl = details.images.firstOrNull { it.type == "primary" }?.uri
+                                ?: details.images.firstOrNull()?.uri
+                            val thumbUrl = details.images.firstOrNull { it.type == "primary" }?.uri150
+                                ?: details.images.firstOrNull()?.uri150
+
+                            release.copy(
+                                cover_image = imageUrl,
+                                thumb = thumbUrl
+                            )
+                        } catch (e: Exception) {
+                            Log.e("Discogs", "Erreur images code-barres: ${e.message}")
+                            release
+                        }
+                    } else {
+                        release
+                    }
+                }
+
+                enrichedResults
+            } catch (e: Exception) {
+                Log.e("Discogs", "Erreur recherche code-barres: ${e.message}", e)
+                emptyList()
+            }
+        }
+
     @Suppress("unused")
     suspend fun searchByBarcode(barcode: String): DiscogsRelease? {
-        return searchRelease("barcode:$barcode").firstOrNull()
+        return searchByBarcodeResults(barcode).firstOrNull()
     }
 
     /**
@@ -298,7 +339,8 @@ interface DiscogsApi {
 
     @GET("database/search")
     suspend fun search(
-        @Query("q") q: String,
+        @Query("q") q: String? = null,
+        @Query("barcode") barcode: String? = null,
         @Query("type") type: String = "release",
         @Query("per_page") per_page: Int = 10
     ): DiscogsManager.DiscogsSearchResponse
