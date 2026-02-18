@@ -20,8 +20,8 @@
 
         <!-- Icône de vinyle à gauche -->
         <FrameLayout
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
             android:layout_gravity="center_vertical"
             android:layout_marginEnd="16dp">
 
