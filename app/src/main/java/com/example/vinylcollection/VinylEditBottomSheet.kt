@@ -240,6 +240,15 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         binding.conditionInput.setText(args.getString(ARG_CONDITION, ""), false)
         binding.notesInput.setText(args.getString(ARG_NOTES, ""))
 
+        // Initialiser le switch "Possédé/Recherché"
+        val isOwned = args.getBoolean(ARG_IS_OWNED, true)
+        binding.ownedSwitch.isChecked = isOwned
+        updateOwnedSwitchText(isOwned)
+
+        binding.ownedSwitch.setOnCheckedChangeListener { _, isChecked ->
+            updateOwnedSwitchText(isChecked)
+        }
+
         binding.deleteButton.visibility = if (id == 0L) View.GONE else View.VISIBLE
 
         binding.saveButton.setOnClickListener {
@@ -268,7 +277,8 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
                 rating = rating,
                 condition = binding.conditionInput.text?.toString()?.trim().orEmpty(),
                 notes = binding.notesInput.text?.toString()?.trim().orEmpty(),
-                coverUri = coverUri?.toString()
+                coverUri = coverUri?.toString(),
+                isOwned = binding.ownedSwitch.isChecked
             )
 
             android.util.Log.d("VinylEdit", "Vinyl saved: ${vinyl.title}, coverUri: ${vinyl.coverUri}")
@@ -306,7 +316,8 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
                         rating = ratingToDelete,
                         condition = binding.conditionInput.text?.toString()?.trim().orEmpty(),
                         notes = binding.notesInput.text?.toString()?.trim().orEmpty(),
-                        coverUri = coverUri?.toString()
+                        coverUri = coverUri?.toString(),
+                        isOwned = binding.ownedSwitch.isChecked
                     )
                     viewModel.delete(vinyl)
                     dismiss()
@@ -319,6 +330,14 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun updateOwnedSwitchText(isOwned: Boolean) {
+        binding.ownedSwitch.text = if (isOwned) {
+            getString(R.string.status_owned)
+        } else {
+            getString(R.string.status_wanted)
+        }
     }
 
     private fun updateCoverUi() {
@@ -619,7 +638,106 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
             setOnReleaseSelected { release ->
                 fillFromDiscogsRelease(release)
             }
+            setOnMultipleReleasesSelected { releases ->
+                importMultipleFromDiscogs(releases)
+            }
         }.show(parentFragmentManager, "DiscogsSearch")
+    }
+
+    /**
+     * Importe plusieurs releases Discogs depuis la recherche
+     */
+    private fun importMultipleFromDiscogs(releases: List<DiscogsManager.DiscogsRelease>) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            var successCount = 0
+            var errorCount = 0
+
+            releases.forEach { release ->
+                try {
+                    // Créer le vinyl sans cover
+                    val vinyl = createVinylFromDiscogsRelease(release)
+
+                    // Télécharger la cover si disponible
+                    val coverImageUrl = release.getCoverUrl()
+                    var vinylWithCover = vinyl
+
+                    if (!coverImageUrl.isNullOrBlank()) {
+                        try {
+                            android.util.Log.d("VinylEdit", "Téléchargement cover depuis: $coverImageUrl")
+                            val imageFile = discogsManager.downloadCoverImage(
+                                coverImageUrl,
+                                requireContext()
+                            )
+                            if (imageFile != null) {
+                                val coverUri = FileProvider.getUriForFile(
+                                    requireContext(),
+                                    "${requireContext().packageName}.fileprovider",
+                                    imageFile
+                                )
+                                vinylWithCover = vinyl.copy(coverUri = coverUri.toString())
+                                android.util.Log.d("VinylEdit", "Cover téléchargée pour ${release.title}")
+                            } else {
+                                android.util.Log.w("VinylEdit", "Impossible de télécharger cover pour ${release.title}")
+                            }
+                        } catch (e: Exception) {
+                            android.util.Log.e("VinylEdit", "Erreur téléchargement cover ${release.title}: ${e.message}")
+                        }
+                    }
+
+                    viewModel.add(vinylWithCover)
+                    successCount++
+                } catch (e: Exception) {
+                    errorCount++
+                    android.util.Log.e("VinylEdit", "Erreur import ${release.title}: ${e.message}")
+                }
+            }
+
+            val message = if (errorCount == 0) {
+                getString(R.string.import_multiple_success, successCount)
+            } else {
+                getString(R.string.import_multiple_error)
+            }
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+
+            // Fermer le BottomSheet et retourner à la liste
+            dismiss()
+        }
+    }
+
+    /**
+     * Crée un Vinyl à partir d'une release Discogs
+     */
+    private fun createVinylFromDiscogsRelease(release: DiscogsManager.DiscogsRelease): Vinyl {
+        val rawTitle = release.title?.trim().orEmpty()
+        val titleParts = rawTitle.split(Regex(" [-–] "), limit = 2)
+
+        val artist: String
+        val title: String
+
+        if (titleParts.size == 2) {
+            artist = titleParts[0].trim()
+            title = titleParts[1].trim()
+                .replace(Regex("\\s*\\([^)]*\\)\\s*$"), "")
+                .replace(Regex("\\s*,\\s*[^,]*$"), "")
+                .trim()
+        } else {
+            artist = ""
+            title = rawTitle
+        }
+
+        return Vinyl(
+            id = 0,
+            title = title,
+            artist = artist,
+            year = release.year,
+            genre = release.genre?.firstOrNull().orEmpty(),
+            label = release.label?.firstOrNull().orEmpty(),
+            rating = null,
+            condition = "",
+            notes = "",
+            coverUri = null,
+            isOwned = false
+        )
     }
 
     /**
@@ -627,17 +745,26 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
      */
     private fun searchOnDiscogs() {
         val title = binding.titleInput.text.toString().trim()
+        val artist = binding.artistInput.text.toString().trim()
 
-        if (title.isBlank()) {
+        // Construire la requête intelligente
+        val query = when {
+            artist.isNotBlank() && title.isNotBlank() -> "$artist $title"
+            title.isNotBlank() -> title
+            artist.isNotBlank() -> artist
+            else -> null
+        }
+
+        if (query == null) {
             Toast.makeText(
                 requireContext(),
-                getString(R.string.discogs_enter_title),
+                getString(R.string.discogs_enter_title_or_artist),
                 Toast.LENGTH_SHORT
             ).show()
             return
         }
 
-        openDiscogsSearch(title)
+        openDiscogsSearch(query)
     }
 
     private fun openCropperWhenCameraReady(file: File, uri: Uri, remainingAttempts: Int = 10) {
@@ -763,6 +890,7 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         private const val ARG_CONDITION = "arg_condition"
         private const val ARG_NOTES = "arg_notes"
         private const val ARG_COVER_URI = "arg_cover_uri"
+        private const val ARG_IS_OWNED = "arg_is_owned"
         private const val ARG_START_BARCODE_SCAN = "arg_start_barcode_scan"
         private const val ARG_START_COVER_SCAN = "arg_start_cover_scan"
 
@@ -804,7 +932,8 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
                     ARG_RATING to vinyl.rating?.toString().orEmpty(),
                     ARG_CONDITION to vinyl.condition,
                     ARG_NOTES to vinyl.notes,
-                    ARG_COVER_URI to vinyl.coverUri
+                    ARG_COVER_URI to vinyl.coverUri,
+                    ARG_IS_OWNED to vinyl.isOwned
                 )
             }
         }

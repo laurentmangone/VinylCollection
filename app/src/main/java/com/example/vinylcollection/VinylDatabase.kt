@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Vinyl::class], version = 2, exportSchema = false)
+@Database(entities = [Vinyl::class], version = 3, exportSchema = false)
 abstract class VinylDatabase : RoomDatabase() {
     abstract fun vinylDao(): VinylDao
 
@@ -21,6 +21,12 @@ abstract class VinylDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE vinyls ADD COLUMN isOwned INTEGER NOT NULL DEFAULT 1")
+            }
+        }
+
         fun getInstance(context: Context): VinylDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -28,7 +34,7 @@ abstract class VinylDatabase : RoomDatabase() {
                     VinylDatabase::class.java,
                     "vinyls.db"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                     .also { INSTANCE = it }
             }

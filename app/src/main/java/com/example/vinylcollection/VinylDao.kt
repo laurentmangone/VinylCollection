@@ -14,6 +14,16 @@ interface VinylDao {
     @Query(
         """
         SELECT * FROM vinyls
+        WHERE (title LIKE '%' || :query || '%' OR artist LIKE '%' || :query || '%' OR genre LIKE '%' || :query || '%')
+        AND isOwned = :isOwned
+        ORDER BY artist COLLATE NOCASE, title COLLATE NOCASE
+        """
+    )
+    fun searchByStatus(query: String, isOwned: Boolean): Flow<List<Vinyl>>
+
+    @Query(
+        """
+        SELECT * FROM vinyls
         WHERE title LIKE '%' || :query || '%' OR artist LIKE '%' || :query || '%' OR genre LIKE '%' || :query || '%'
         ORDER BY artist COLLATE NOCASE, title COLLATE NOCASE
         """
@@ -28,4 +38,7 @@ interface VinylDao {
 
     @Delete
     suspend fun delete(vinyl: Vinyl): Int
+
+    @Query("SELECT COUNT(*) FROM vinyls WHERE isOwned = 1")
+    fun countOwned(): Flow<Int>
 }

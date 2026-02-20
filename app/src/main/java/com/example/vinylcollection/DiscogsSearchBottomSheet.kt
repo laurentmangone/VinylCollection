@@ -15,7 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 
 /**
- * Bottom Sheet pour afficher les résultats de recherche Discogs
+ * Bottom Sheet pour afficher les résultats de recherche Discogs avec sélection multiple
  */
 class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
 
@@ -23,8 +23,11 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
     private val binding get() = _binding!!
 
     private val discogsManager by lazy { DiscogsManager() }
+    private lateinit var adapter: DiscogsResultAdapter
+    private var searchResults: List<DiscogsManager.DiscogsRelease> = emptyList()
 
     private var onReleaseSelected: ((DiscogsManager.DiscogsRelease) -> Unit)? = null
+    private var onMultipleReleasesSelected: ((List<DiscogsManager.DiscogsRelease>) -> Unit)? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,11 +54,34 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
             getString(R.string.discogs_results_for, query)
         }
 
-        // Rechercher immédiatement
+        setupSelectionActions()
+        performSearch(query, isBarcode)
+    }
+
+    private fun setupSelectionActions() {
+        binding.selectAllButton.setOnClickListener {
+            if (adapter.getSelectedCount() == searchResults.size) {
+                adapter.clearSelection()
+            } else {
+                adapter.selectAll()
+            }
+        }
+
+        binding.importSelectedButton.setOnClickListener {
+            val selected = adapter.getSelectedReleases()
+            if (selected.isNotEmpty()) {
+                onMultipleReleasesSelected?.invoke(selected)
+                dismiss()
+            }
+        }
+    }
+
+    private fun performSearch(query: String, isBarcode: Boolean) {
         viewLifecycleOwner.lifecycleScope.launch {
             binding.progressBar.isVisible = true
             binding.resultsRecycler.isVisible = false
             binding.emptyState.isVisible = false
+            binding.selectionActions.isVisible = false
 
             try {
                 val results = if (isBarcode) {
@@ -64,6 +90,7 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
                     discogsManager.searchRelease(query)
                 }
 
+                searchResults = results
                 binding.progressBar.isVisible = false
 
                 if (results.isEmpty()) {
@@ -75,14 +102,22 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
                     }
                 } else {
                     binding.resultsRecycler.isVisible = true
+                    binding.selectionActions.isVisible = true
 
-                    val adapter = DiscogsResultAdapter { release ->
-                        onReleaseSelected?.invoke(release)
-                        dismiss()
-                    }
+                    adapter = DiscogsResultAdapter(
+                        onItemClick = { release ->
+                            onReleaseSelected?.invoke(release)
+                            dismiss()
+                        },
+                        onSelectionChanged = { _, count ->
+                            updateSelectionUI(count)
+                        }
+                    )
+                    // Le mode sélection sera activé lors d'un long press sur un item
                     binding.resultsRecycler.layoutManager = LinearLayoutManager(requireContext())
                     binding.resultsRecycler.adapter = adapter
                     adapter.submitList(results)
+                    updateSelectionUI(0)
                 }
             } catch (e: Exception) {
                 binding.progressBar.isVisible = false
@@ -97,8 +132,23 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    private fun updateSelectionUI(count: Int) {
+        binding.selectionCount.text = getString(R.string.selected_count, count)
+        binding.importSelectedButton.text = getString(R.string.import_selected, count)
+        binding.importSelectedButton.isEnabled = count > 0
+        binding.selectAllButton.text = if (count == searchResults.size && searchResults.isNotEmpty()) {
+            getString(R.string.deselect_all)
+        } else {
+            getString(R.string.select_all)
+        }
+    }
+
     fun setOnReleaseSelected(callback: (DiscogsManager.DiscogsRelease) -> Unit) {
         onReleaseSelected = callback
+    }
+
+    fun setOnMultipleReleasesSelected(callback: (List<DiscogsManager.DiscogsRelease>) -> Unit) {
+        onMultipleReleasesSelected = callback
     }
 
     override fun onDestroyView() {

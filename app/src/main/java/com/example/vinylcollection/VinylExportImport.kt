@@ -34,7 +34,8 @@ data class VinylExportItem(
     val rating: Int?,
     val condition: String,
     val notes: String,
-    val coverBase64: String? = null  // Image encodée en base64
+    val coverBase64: String? = null,  // Image encodée en base64
+    val isOwned: Boolean = true
 )
 
 /**
@@ -80,6 +81,7 @@ class VinylExportImport(private val context: Context) {
                 rating = vinyl.rating,
                 condition = vinyl.condition,
                 notes = vinyl.notes,
+                isOwned = vinyl.isOwned,
                 coverBase64 = vinyl.coverUri?.let { uri ->
                     try {
                         android.util.Log.d("VinylExport", "Attempting to read cover from: $uri")
@@ -176,7 +178,8 @@ class VinylExportImport(private val context: Context) {
                 rating = item.rating,
                 condition = item.condition,
                 notes = item.notes,
-                coverUri = coverUri
+                coverUri = coverUri,
+                isOwned = item.isOwned
             )
         }
     }

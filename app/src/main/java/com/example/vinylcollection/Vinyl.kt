@@ -14,5 +14,6 @@ data class Vinyl(
     val rating: Int?,
     val condition: String,
     val notes: String,
-    val coverUri: String? = null
+    val coverUri: String? = null,
+    val isOwned: Boolean = true
 )

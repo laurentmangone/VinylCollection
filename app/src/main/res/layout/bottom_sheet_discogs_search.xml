@@ -15,6 +15,42 @@
         android:textColor="?attr/colorOnSurface"
         android:layout_marginBottom="16dp" />
 
+    <!-- Barre d'actions pour sélection multiple -->
+    <LinearLayout
+        android:id="@+id/selectionActions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/selectionCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurface" />
+
+        <Button
+            android:id="@+id/selectAllButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_all"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/importSelectedButton"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/import_vinyl"
+            android:textSize="12sp"
+            android:enabled="false" />
+    </LinearLayout>
+
     <!-- Barre de progression -->
     <ProgressBar
         android:id="@+id/progressBar"
@@ -28,7 +64,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/resultsRecycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:visibility="gone" />
 
     <!-- État vide -->

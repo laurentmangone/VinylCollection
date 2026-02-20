@@ -138,6 +138,26 @@
                         android:textColor="?attr/colorSecondary"
                         tools:text="Bon" />
                 </LinearLayout>
+
+                <!-- Badge Statut (Recherché) -->
+                <LinearLayout
+                    android:id="@+id/statusBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginStart="12dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/statusText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceLabelSmall"
+                        android:textColor="@color/rating_gold"
+                        android:textStyle="bold"
+                        tools:text="🔍 Recherché" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- Layout horizontal pour rating et notes -->

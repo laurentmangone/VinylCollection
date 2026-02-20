@@ -68,6 +68,14 @@ class VinylAdapter(
                 binding.conditionBadge.visibility = android.view.View.GONE
             }
 
+            // Badge Statut (Possédé/Recherché)
+            if (vinyl.isOwned) {
+                binding.statusBadge.visibility = android.view.View.GONE
+            } else {
+                binding.statusText.text = binding.root.context.getString(R.string.badge_wanted)
+                binding.statusBadge.visibility = android.view.View.VISIBLE
+            }
+
             // Notes preview
             if (vinyl.notes.isNotBlank()) {
                 binding.notesPreview.text = vinyl.notes
