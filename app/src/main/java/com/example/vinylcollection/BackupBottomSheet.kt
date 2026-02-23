@@ -68,11 +68,17 @@ class BackupBottomSheet : BottomSheetDialogFragment() {
     private fun exportToJson() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                binding.progressBar.visibility = View.VISIBLE
-                binding.exportButton.isEnabled = false
+                // Vérifier que le binding existe avant de commencer
+                val currentBinding = _binding ?: return@launch
+
+                currentBinding.progressBar.visibility = View.VISIBLE
+                currentBinding.exportButton.isEnabled = false
 
                 val vinyls = viewModel.vinyls.value
                 val result = exportImport.exportToPrettyJson(vinyls)
+
+                // Vérifier à nouveau que le binding existe après l'export
+                val bindingAfterExport = _binding ?: return@launch
 
                 if (result.isSuccess) {
                     val file = result.getOrThrow()
@@ -104,16 +110,19 @@ class BackupBottomSheet : BottomSheetDialogFragment() {
                     ).show()
                 }
 
-                binding.progressBar.visibility = View.GONE
-                binding.exportButton.isEnabled = true
+                bindingAfterExport.progressBar.visibility = View.GONE
+                bindingAfterExport.exportButton.isEnabled = true
             } catch (e: Exception) {
+                // Vérifier que le binding existe avant d'afficher l'erreur
+                val bindingForError = _binding ?: return@launch
+
                 Toast.makeText(
                     requireContext(),
                     "Erreur: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
-                binding.progressBar.visibility = View.GONE
-                binding.exportButton.isEnabled = true
+                bindingForError.progressBar.visibility = View.GONE
+                bindingForError.exportButton.isEnabled = true
             }
         }
     }
@@ -121,10 +130,16 @@ class BackupBottomSheet : BottomSheetDialogFragment() {
     private fun importFromFile(file: File) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                binding.progressBar.visibility = View.VISIBLE
-                binding.importButton.isEnabled = false
+                // Vérifier que le binding existe avant de commencer
+                val currentBinding = _binding ?: return@launch
+
+                currentBinding.progressBar.visibility = View.VISIBLE
+                currentBinding.importButton.isEnabled = false
 
                 val result = exportImport.importFromJson(file)
+
+                // Vérifier à nouveau que le binding existe après l'import
+                val bindingAfterImport = _binding ?: return@launch
 
                 if (result.isSuccess) {
                     val importedVinyls = result.getOrThrow()
@@ -149,16 +164,19 @@ class BackupBottomSheet : BottomSheetDialogFragment() {
                     ).show()
                 }
 
-                binding.progressBar.visibility = View.GONE
-                binding.importButton.isEnabled = true
+                bindingAfterImport.progressBar.visibility = View.GONE
+                bindingAfterImport.importButton.isEnabled = true
             } catch (e: Exception) {
+                // Vérifier que le binding existe avant d'afficher l'erreur
+                val bindingForError = _binding ?: return@launch
+
                 Toast.makeText(
                     requireContext(),
                     "Erreur: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
-                binding.progressBar.visibility = View.GONE
-                binding.importButton.isEnabled = true
+                bindingForError.progressBar.visibility = View.GONE
+                bindingForError.importButton.isEnabled = true
             }
         }
     }

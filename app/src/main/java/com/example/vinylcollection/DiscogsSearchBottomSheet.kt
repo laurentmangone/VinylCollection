@@ -78,10 +78,13 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
 
     private fun performSearch(query: String, isBarcode: Boolean) {
         viewLifecycleOwner.lifecycleScope.launch {
-            binding.progressBar.isVisible = true
-            binding.resultsRecycler.isVisible = false
-            binding.emptyState.isVisible = false
-            binding.selectionActions.isVisible = false
+            // Vérifier que le binding existe avant de commencer
+            val currentBinding = _binding ?: return@launch
+
+            currentBinding.progressBar.isVisible = true
+            currentBinding.resultsContainer.isVisible = false
+            currentBinding.emptyState.isVisible = false
+            currentBinding.selectionActions.isVisible = false
 
             try {
                 val results = if (isBarcode) {
@@ -90,19 +93,22 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
                     discogsManager.searchRelease(query)
                 }
 
+                // Vérifier à nouveau que le binding existe après l'appel réseau
+                val bindingAfterSearch = _binding ?: return@launch
+
                 searchResults = results
-                binding.progressBar.isVisible = false
+                bindingAfterSearch.progressBar.isVisible = false
 
                 if (results.isEmpty()) {
-                    binding.emptyState.isVisible = true
-                    binding.emptyState.text = if (isBarcode) {
+                    bindingAfterSearch.emptyState.isVisible = true
+                    bindingAfterSearch.emptyState.text = if (isBarcode) {
                         getString(R.string.discogs_no_results_for_barcode, query)
                     } else {
                         getString(R.string.discogs_no_results_for, query)
                     }
                 } else {
-                    binding.resultsRecycler.isVisible = true
-                    binding.selectionActions.isVisible = true
+                    bindingAfterSearch.resultsContainer.isVisible = true
+                    bindingAfterSearch.selectionActions.isVisible = true
 
                     adapter = DiscogsResultAdapter(
                         onItemClick = { release ->
@@ -114,15 +120,18 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
                         }
                     )
                     // Le mode sélection sera activé lors d'un long press sur un item
-                    binding.resultsRecycler.layoutManager = LinearLayoutManager(requireContext())
-                    binding.resultsRecycler.adapter = adapter
+                    bindingAfterSearch.resultsRecycler.layoutManager = LinearLayoutManager(requireContext())
+                    bindingAfterSearch.resultsRecycler.adapter = adapter
                     adapter.submitList(results)
                     updateSelectionUI(0)
                 }
             } catch (e: Exception) {
-                binding.progressBar.isVisible = false
-                binding.emptyState.isVisible = true
-                binding.emptyState.text = getString(R.string.discogs_search_error, e.message ?: "")
+                // Vérifier que le binding existe avant d'afficher l'erreur
+                val bindingForError = _binding ?: return@launch
+
+                bindingForError.progressBar.isVisible = false
+                bindingForError.emptyState.isVisible = true
+                bindingForError.emptyState.text = getString(R.string.discogs_search_error, e.message ?: "")
                 Toast.makeText(
                     requireContext(),
                     getString(R.string.discogs_search_error_toast, e.message ?: ""),
@@ -133,10 +142,13 @@ class DiscogsSearchBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun updateSelectionUI(count: Int) {
-        binding.selectionCount.text = getString(R.string.selected_count, count)
-        binding.importSelectedButton.text = getString(R.string.import_selected, count)
-        binding.importSelectedButton.isEnabled = count > 0
-        binding.selectAllButton.text = if (count == searchResults.size && searchResults.isNotEmpty()) {
+        // Vérifier que le binding existe
+        val currentBinding = _binding ?: return
+
+        currentBinding.selectionCount.text = getString(R.string.selected_count, count)
+        currentBinding.importSelectedButton.text = getString(R.string.import_selected, count)
+        currentBinding.importSelectedButton.isEnabled = count > 0
+        currentBinding.selectAllButton.text = if (count == searchResults.size && searchResults.isNotEmpty()) {
             getString(R.string.deselect_all)
         } else {
             getString(R.string.select_all)

@@ -341,18 +341,21 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun updateCoverUi() {
-        val imageView: ImageView = binding.coverImageView
+        // Vérifier que le binding existe
+        val currentBinding = _binding ?: return
+
+        val imageView: ImageView = currentBinding.coverImageView
         if (coverUri != null) {
             imageView.setImageURI(coverUri)
             if (imageView.drawable == null) {
                 imageView.setImageResource(R.drawable.ic_vinyl)
             }
-            binding.removePhotoButton.visibility = View.VISIBLE
-            binding.viewPhotoButton.visibility = View.VISIBLE
+            currentBinding.removePhotoButton.visibility = View.VISIBLE
+            currentBinding.viewPhotoButton.visibility = View.VISIBLE
         } else {
             imageView.setImageResource(R.drawable.ic_vinyl)
-            binding.removePhotoButton.visibility = View.GONE
-            binding.viewPhotoButton.visibility = View.GONE
+            currentBinding.removePhotoButton.visibility = View.GONE
+            currentBinding.viewPhotoButton.visibility = View.GONE
         }
     }
 
@@ -835,13 +838,17 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
         val coverImageUrl = release.getCoverUrl()
 
         if (!coverImageUrl.isNullOrBlank()) {
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     android.util.Log.d("VinylEdit", "Téléchargement cover depuis: $coverImageUrl")
                     val imageFile = discogsManager.downloadCoverImage(
                         coverImageUrl,
                         requireContext()
                     )
+
+                    // Vérifier que le binding existe toujours après l'opération async
+                    if (_binding == null) return@launch
+
                     if (imageFile != null) {
                         coverUri = FileProvider.getUriForFile(
                             requireContext(),
@@ -863,6 +870,10 @@ class VinylEditBottomSheet : BottomSheetDialogFragment() {
                     }
                 } catch (e: Exception) {
                     android.util.Log.e("VinylEdit", "Erreur téléchargement: ${e.message}", e)
+
+                    // Vérifier que le binding existe toujours
+                    if (_binding == null) return@launch
+
                     Toast.makeText(
                         requireContext(),
                         "Données Discogs chargées (erreur image: ${e.message})",
